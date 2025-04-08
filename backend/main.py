@@ -16,7 +16,7 @@ class DatabaseManager:
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "78af91b1d81e440cbe0059d259d52745"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://budget_database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///budget_database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 CORS(app)
 
