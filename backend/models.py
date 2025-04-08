@@ -16,6 +16,26 @@ class Transaction(db.Model):
     def validate_amount(self) -> None:
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
+        
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+        
+    def fetch_all():
+        return Transaction.query.all()
+    
+    def update(transaction_id, transaction_data):
+        transaction = Transaction.query.get_or_404(transaction_id)
+        transaction.amount = transaction_data["amount"]
+        transaction.description = transaction_data["description"]
+        transaction.date = datetime.strptime(transaction_data["date"], "%Y-%m-%d")
+        db.session.commit()
+        return transaction
+    
+    def delete(transaction_id):
+        transaction = Transaction.query.get_or_404(transaction_id)
+        db.session.delete(transaction)
+        db.session.commit()
 
 
 class Income(Transaction):
