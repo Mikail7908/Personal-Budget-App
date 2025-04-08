@@ -1,6 +1,6 @@
 # routes.py
 from flask import Blueprint, request, jsonify
-from models import Transaction, Budget
+from models import Transaction, Budget, Category
 from datetime import datetime
 
 api = Blueprint("api", __name__)
@@ -10,6 +10,7 @@ api = Blueprint("api", __name__)
 def test():
     return jsonify({"message": "Test route working ✅"})
 
+#Transaction Routes
 @api.route("/api/transactions", methods=["POST"])
 def create_transaction():
     data = request.get_json()
@@ -49,6 +50,7 @@ def delete_transaction(id):
     Transaction.delete(id)
     return jsonify({"message": "Transaction deleted successfully"}), 200
 
+#Budget Routes
 @api.route("/api/budget", methods=["POST"])
 def create_budget():
     budget_data = request.json()
@@ -87,3 +89,38 @@ def edit_budget(budget_id):
 def delete_budget(budget_id):
     Budget.delete(budget_id)
     return jsonify({"message": "Budget deleted successfully"}), 200
+
+#Catagory Routes
+@api.route("/api/categories", methods=["GET"])
+def create_category():
+    category_data = request.json()
+    new_category = Category(
+        name=category_data["name"],
+        type=category_data["type"]
+    )
+    new_category.save_to_db()
+    return jsonify({
+        "message": "Successfully created new category",
+        "category_id": new_category.id
+    }), 201
+
+def view_all_categories():
+    all_categories = Category.fetch_all()
+    category_list = [{
+        "category_id": category.id,
+        "name": category.name,
+        "type": category.type
+    } for category in all_categories]
+    return jsonify(category_list), 200
+
+def edit_category(category_id):
+    category_data = request.json()
+    updated_category = Category.update(category_id, category_data)
+    return jsonify({
+        "message": "Successfully updated category",
+        "category_id": updated_category.id
+    }), 200
+
+def delete_category(category_id):
+    Category.delete(category_id)
+    return jsonify({"message": "Category deleted successfully"}), 200
