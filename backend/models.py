@@ -12,6 +12,8 @@ class Transaction(db.Model):
     description = db.Column(db.String(255), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     type = db.Column(db.String(50), nullable=False)  # income or expense
+    
+    budget = relationship("Budget", back_populates="transactions")
 
     def validate_amount(self):
         if self.amount <= 0:
@@ -67,13 +69,33 @@ class Budget(db.Model):
     spent_amount = db.Column(db.Float, default=0.00)
 
     category = relationship("Category", back_populates="budgets")
+    transactions = relationship("Transaction", back_populates="budget")
 
     def calculate_remaining(self):
         return self.amount - self.spent_amount
 
-    def update_spent_amount(self, amount):
-        self.spent_amount += amount
+    def save_to_db(self):
+        db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def fetch_all():
+        return Budget.query.all()
+
+    @staticmethod
+    def update(budget_id, budget_data):
+        budget = Budget.query.get_or_404(budget_id)
+        budget.amount = budget_data["amount"]
+        budget.month = budget_data["month"]
+        db.session.commit()
+        return budget
+
+    @staticmethod
+    def delete(budget_id):
+        budget = Budget.query.get_or_404(budget_id)
+        db.session.delete(budget)
+        db.session.commit()
+
 
 class SavingsGoal(db.Model):
     __tablename__ = "savings_goals"
