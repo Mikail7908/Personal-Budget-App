@@ -1,4 +1,5 @@
 from datetime import datetime
+import sqlite3
 
 class BaseModel:
     def __init__(self, id=None, created_at=None, updated_at=None):
@@ -8,6 +9,9 @@ class BaseModel:
         
     def save(self):
         print(f"Saving object {self.id}")
+        with sqlite3.connect("budget_database.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute()
         
     def delete(self):
         print(f"Deleting obejct {self.id}")
