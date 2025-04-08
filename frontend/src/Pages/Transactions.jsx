@@ -10,52 +10,85 @@ function Transactions() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  // Fetch transactions from backend
-  useEffect(() => {
-    fetch("/api/transactions")
+  // Fetch all transactions
+  const fetchTransactions = () => {
+    fetch("http://127.0.0.1:5000/api/transactions")
       .then((res) => res.json())
-      .then((data) => setTransactions(data))
-      .catch((err) => console.error("Error fetching:", err));
+      .then((data) => {
+        setTransactions(data);
+        console.log("📦 Fetched transactions:", data);
+      })
+      .catch((err) =>
+        console.error("Error fetching transactions:", err)
+      );
+  };
+
+  useEffect(() => {
+    fetchTransactions();
   }, []);
 
-  // Handle form input changes
+  // Handle input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Add or update transaction
-  const handleSubmit = (e) => {
+  // Submit (add or edit)
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("🚀 Submitting transaction:", form);
 
     const method = editingId ? "PUT" : "POST";
-    const url = editingId ? `/api/transactions/${editingId}` : "/api/transactions";
+    const url = editingId
+      ? `http://127.0.0.1:5000/api/transactions/${editingId}`
+      : "http://127.0.0.1:5000/api/transactions";
 
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        setForm({ amount: "", description: "", date: "", type: "expense" });
-        setEditingId(null);
-        return fetch("/api/transactions").then((res) => res.json());
-      })
-      .then((data) => setTransactions(data));
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Backend error: ${res.status} - ${errorText}`);
+      }
+
+      const result = await res.json();
+      console.log("Backend response:", result);
+
+      setForm({ amount: "", description: "", date: "", type: "expense" });
+      setEditingId(null);
+      fetchTransactions();
+    } catch (err) {
+      console.error("Error submitting transaction:", err.message);
+      alert("Error: " + err.message);
+    }
   };
 
-  // Populate form for editing
-  const handleEdit = (transaction) => {
-    setForm(transaction);
-    setEditingId(transaction.id);
+  // Edit mode
+  const handleEdit = (txn) => {
+    setForm({
+      amount: txn.amount,
+      description: txn.description,
+      date: txn.date,
+      type: txn.type,
+    });
+    setEditingId(txn.id); // assuming backend now returns 'id'
   };
 
-  // Delete transaction
+  // Delete
   const handleDelete = (id) => {
-    fetch(`/api/transactions/${id}`, { method: "DELETE" })
-      .then(() => fetch("/api/transactions"))
-      .then((res) => res.json())
-      .then((data) => setTransactions(data));
+    fetch(`http://127.0.0.1:5000/api/transactions/${id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        console.log(`🗑️ Deleted transaction ${id}`);
+        fetchTransactions();
+      })
+      .catch((err) =>
+        console.error("Error deleting transaction:", err)
+      );
   };
 
   return (
