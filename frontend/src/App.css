@@ -114,3 +114,66 @@ footer {
   font-size: 0.9rem;
   text-align: center;
 }
+
+.transaction-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.transaction-form input,
+.transaction-form select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.transaction-form button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.transaction-form button:hover {
+  background-color: #388e3c;
+}
+
+.transaction-list {
+  list-style: none;
+  padding: 0;
+}
+
+.transaction-item {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f8f8f8;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.transaction-item button {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.transaction-item button:first-of-type {
+  background-color: #1976d2;
+  margin-right: 0.5rem;
+}
+
+.transaction-item button:hover {
+  opacity: 0.9;
+}
+
