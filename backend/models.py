@@ -75,6 +75,30 @@ class Budget(db.Model):
         self.spent_amount += amount
         db.session.commit()
 
+
+        def save_to_db(self):
+            db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def fetch_all():
+        return Budget.query.order_by(Budget.date.desc()).all()
+
+    @staticmethod
+    def update(budget_id, budget_data):
+        budget = Budget.query.get_or_404(budget_id)
+        budget.amount = budget_data["amount"]
+        budget.month = budget_data["description"]
+        budget.spent_amount = datetime.strptime(budget_data["date"], "%Y-%m-%d")
+        db.session.commit()
+        return budget
+
+    @staticmethod
+    def delete(budget_id):
+        budget = Budget.query.get_or_404(budget_id)
+        db.session.delete(budget)
+        db.session.commit()
+
 class SavingsGoal(db.Model):
     __tablename__ = "savings_goals"
 
