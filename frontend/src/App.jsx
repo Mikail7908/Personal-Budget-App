@@ -1,28 +1,35 @@
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import Home from './pages/Home'
+import Transactions from './pages/Transactions'
+import Income from './pages/Income'
+import Expenses from './pages/Expenses'
+import Budget from './pages/Budget'
 import './App.css'
 
 function App() {
   return (
-    <div className="app">
-      <header>
-        <h1>💰 My Budget Tracker</h1>
-        <p>Manage your money wisely. Track your income, expenses, and stay on top of your finances.</p>
-      </header>
+    <Router>
+      <div className="app">
+        <nav>
+          <ul className="nav">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/transactions">Transactions</Link></li>
+            <li><Link to="/income">Income</Link></li>
+            <li><Link to="/expenses">Expenses</Link></li>
+            <li><Link to="/budget">Budget</Link></li>
+          </ul>
+        </nav>
 
-      <main>
-        <section className="intro-card">
-          <h2>Welcome!</h2>
-          <p>This is your personal space to take control of your budget.</p>
-          <p>Start by adding your income and expenses to see your current balance.</p>
-        </section>
-
-        <section className="cta">
-          <button>Add New Expense</button>
-          <button>Add Income</button>
-        </section>
-      </main>
-
-    </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/income" element={<Income />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/budget" element={<Budget />} />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 
-export default App
+export default App;
