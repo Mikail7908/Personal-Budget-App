@@ -1,0 +1,65 @@
+classDiagram
+    class BaseModel {
+        +int id
+        +datetime created_at
+        +datetime updated_at
+        +save()
+        +delete()
+        +get()
+    }
+
+    class FinancialTransaction {
+        <<abstract>>
+        +float amount
+        +str description
+        +datetime date
+        +validate_amount()*
+        +process_transaction()*
+    }
+
+    class Income {
+        +str source
+        +str frequency
+        +validate_amount()
+        +process_transaction()
+    }
+
+    class Expense {
+        +str category
+        +str payment_method
+        +validate_amount()
+        +process_transaction()
+    }
+
+    class Category {
+        +str name
+        +str type
+        +create_category()
+        +get_all_categories()
+    }
+
+    class Budget {
+        +Category category
+        +float amount
+        +str month
+        +float spent_amount
+        +calculate_remaining()
+        +update_spent_amount()
+    }
+
+    class SavingsGoal {
+        +float target_amount
+        +float current_amount
+        +date deadline
+        +str description
+        +str saving_frequency
+        +calculate_progress()
+        +project_completion_date()
+    }
+
+    BaseModel <|-- FinancialTransaction
+    BaseModel <|-- Category
+    BaseModel <|-- Budget
+    BaseModel <|-- SavingsGoal
+    FinancialTransaction <|-- Income
+    FinancialTransaction <|-- Expense

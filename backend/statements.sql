@@ -1,6 +1,23 @@
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL
+CREATE TABLE Users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE Transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    category TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ("income", "expense")),
+    date TEXT NOT NULL,
+    FOREIGN KEY user_id REFERENCES Users.id ON DELETE CASCADE
+);
+
+CREATE TABLE BudgetGoals(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    month TEXT NOT NULL,
+    FOREIGN KEY user_id REFERENCES Users.id ON DELETE CASCADE
 );
