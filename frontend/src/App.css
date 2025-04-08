@@ -5,27 +5,50 @@ body {
   background-color: #fefefe;
   color: #333;
   font-family: Arial, sans-serif;
+  box-sizing: border-box;
 }
 
-/* Main app wrapper */
+/* Main app layout */
 .app {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
   max-width: 900px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-/* Navigation bar */
+/* Each page content wrapper */
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Full width navbar container */
+nav {
+  width: 100vw;
+  background-color: #e0e0e0;
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Nav list styling */
 .nav {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #e0e0e0;
-  border-radius: 0.5rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
   list-style: none;
+  padding: 1rem;
+  margin: 0;
 }
 
+/* Nav items */
 .nav li {
   display: inline;
 }
@@ -36,6 +59,7 @@ body {
   font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
 }
 
 .nav a:hover {
