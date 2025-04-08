@@ -30,6 +30,7 @@ class Transaction(BaseModel):
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)  # income or expense
+    budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
     
     budget = relationship("Budget", back_populates="transactions")
 
@@ -44,6 +45,7 @@ class Transaction(BaseModel):
         transaction.description = transaction_data["description"]
         transaction.date = datetime.strptime(transaction_data["date"], "%Y-%m-%d")
         transaction.type = transaction_data["type"]
+        transaction.budget_id = transaction_data.get("budget_id")
         db.session.commit()
         return transaction
 
@@ -94,14 +96,6 @@ class Budget(BaseModel):
         db.session.delete(budget)
         db.session.commit()
 
-    @staticmethod
-    def update(budget_id, budget_data):
-        budget = Budget.query.get_or_404(budget_id)
-        budget.amount = budget_data["amount"]
-        budget.month = budget_data["description"]
-        budget.spent_amount = datetime.strptime(budget_data["date"], "%Y-%m-%d")
-        db.session.commit()
-        return budget
 
 class SavingsGoal(BaseModel):
     __tablename__ = "savings_goals"
