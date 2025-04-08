@@ -1,37 +1,96 @@
+/* Global styles */
 body {
   margin: 0;
   padding: 0;
   background-color: #fefefe;
   color: #333;
   font-family: Arial, sans-serif;
+  box-sizing: border-box;
 }
 
+/* Main app layout */
 .app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 2rem;
-  max-width: 700px;
-  margin: auto;
-  text-align: center;
 }
 
+/* Each page content wrapper */
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Full width navbar container */
+nav {
+  width: 100vw;
+  background-color: #e0e0e0;
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Nav list styling */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 1rem;
+  margin: 0;
+}
+
+/* Nav items */
+.nav li {
+  display: inline;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #1a237e;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.nav a:hover {
+  background-color: #c5cae9;
+}
+
+/* Header styling */
 header h1 {
   font-size: 2.5rem;
   color: #1a73e8;
+  text-align: center;
 }
 
 header p {
   font-size: 1.1rem;
   color: #555;
   margin-top: 0.5rem;
+  text-align: center;
 }
 
+/* Intro card style (for homepage or any featured section) */
 .intro-card {
   background-color: #e3f2fd;
   padding: 1.5rem;
   border-radius: 1rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
+/* Buttons */
 .cta button {
   margin: 0.5rem;
   padding: 0.75rem 1.5rem;
@@ -48,8 +107,10 @@ header p {
   background-color: #388e3c;
 }
 
+/* Footer */
 footer {
   margin-top: 2rem;
   color: #888;
   font-size: 0.9rem;
+  text-align: center;
 }
