@@ -3,54 +3,63 @@ import { useState, useEffect } from "react";
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     amount: "",
     description: "",
     date: "",
     type: "expense",
-    budget_id: "",
+    category_id: "",
   });
   const [editingId, setEditingId] = useState(null);
 
-  // Fetch all transactions
   const fetchTransactions = () => {
     fetch("http://127.0.0.1:5000/api/transactions")
       .then((res) => res.json())
-      .then((data) => {
-        setTransactions(data);
-        console.log("📦 Fetched transactions:", data);
-      })
-      .catch((err) =>
-        console.error("Error fetching transactions:", err)
-      );
+      .then(setTransactions)
+      .catch((err) => console.error("Error fetching transactions:", err));
   };
 
   const fetchBudgets = () => {
-    fetch("http://127.0.0.1:5000/api/budget")
-    .then((res) => res.json())
-    .then ((data) => {
-      setBudgets(data);
-      console.log("Fetched budgets:", data);
-    })
-    .catch((err) =>
-      console.error("Error fetching budgets:", err)
-    );
-  }
+    fetch("http://127.0.0.1:5000/api/budgets")
+      .then((res) => res.json())
+      .then(setBudgets)
+      .catch((err) => console.error("Error fetching budgets:", err));
+  };
+
+  const fetchCategories = () => {
+    fetch("http://127.0.0.1:5000/api/categories")
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch((err) => console.error("Error fetching categories:", err));
+  };
 
   useEffect(() => {
     fetchTransactions();
     fetchBudgets();
+    fetchCategories();
   }, []);
 
-  // Handle input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Submit (add or edit)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀 Submitting transaction:", form);
+
+    const selectedCategoryId = parseInt(form.category_id);
+
+    const matchingBudget = budgets.find(
+      (b) => b.category_id === selectedCategoryId
+    );
+
+    const dataToSend = {
+      amount: parseFloat(form.amount),
+      description: form.description,
+      date: form.date,
+      type: form.type,
+      budget_id: matchingBudget ? matchingBudget.id : null,
+    };
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
@@ -61,56 +70,58 @@ function Transactions() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(dataToSend),
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Backend error: ${res.status} - ${errorText}`);
-      }
-
-      const result = await res.json();
-      console.log("Backend response:", result);
-
+      await res.json();
       setForm({
         amount: "",
         description: "",
         date: "",
         type: "expense",
-        budget_id: ""
+        category_id: "",
       });
       setEditingId(null);
       fetchTransactions();
+      fetchBudgets();
     } catch (err) {
       console.error("Error submitting transaction:", err.message);
       alert("Error: " + err.message);
     }
   };
 
-  // Edit mode
   const handleEdit = (txn) => {
     setForm({
       amount: txn.amount,
       description: txn.description,
       date: txn.date,
       type: txn.type,
-      budget_id: txn.budget_id || "",
+      category_id: txn.category_id || "",
     });
-    setEditingId(txn.id); // assuming backend now returns 'id'
+    setEditingId(txn.id);
   };
 
-  // Delete
   const handleDelete = (id) => {
     fetch(`http://127.0.0.1:5000/api/transactions/${id}`, {
       method: "DELETE",
     })
-      .then(() => {
-        console.log(`🗑️ Deleted transaction ${id}`);
-        fetchTransactions();
-      })
-      .catch((err) =>
-        console.error("Error deleting transaction:", err)
-      );
+      .then(fetchTransactions)
+      .catch((err) => console.error("Error deleting transaction:", err));
+  };
+
+  const getCategoryName = (id) => {
+    const cat = categories.find((c) => c.id === id);
+    return cat ? cat.name : "Unknown Category";
+  };
+
+  const getBudgetName = (budgetId) => {
+    const budget = budgets.find((b) => b.id === budgetId);
+    if (!budget) return "Unknown Budget";
+
+    const category = categories.find((c) => c.id === budget.category_id);
+    const categoryName = category ? category.name : "Unknown Category";
+
+    return `${categoryName} (${budget.month})`;
   };
 
   return (
@@ -145,28 +156,40 @@ function Transactions() {
           <option value="expense">Expense</option>
           <option value="income">Income</option>
         </select>
-        <select name="budget_id" value={form.budget_id || ""} onChange={handleChange}>
-          <option value="">No Budget</option>
-          {budgets.map((budget) => (
-            <option key={budget.id} value={budget.id}>
-              {budget.category_id} - {budget.month}
+
+        <select
+          name="category_id"
+          value={form.category_id}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name} ({cat.type})
             </option>
           ))}
         </select>
+
         <button type="submit">{editingId ? "Update" : "Add"} Transaction</button>
       </form>
 
       <ul className="transaction-list">
         {transactions.map((txn) => (
           <li key={txn.id} className="transaction-item">
-            <span>${txn.amount.toFixed(2)}</span>
+            <span className="transaction-amount">£{txn.amount.toFixed(2)}</span>
             <span>{txn.description}</span>
             <span>{txn.date}</span>
             <span>{txn.type}</span>
             <span>
               {txn.budget_id
-                ? `Budget ID: ${txn.budget_id}`
+                ? `Budget: ${getBudgetName(txn.budget_id)}`
                 : "No Budget Assigned"}
+            </span>
+            <span>
+              {txn.category_id
+                ? `Category: ${getCategoryName(txn.category_id)}`
+                : ""}
             </span>
             <button onClick={() => handleEdit(txn)}>Edit</button>
             <button onClick={() => handleDelete(txn.id)}>Delete</button>
