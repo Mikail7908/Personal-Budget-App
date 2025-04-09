@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
+from services.transaction_service import TransactionService
 
 api = Blueprint("api", __name__)
 
@@ -14,45 +15,47 @@ def test():
 def create_transaction():
     try:
         data = request.get_json()
-        new_transaction = Transaction(
-            amount=float(data["amount"]),
-            description=data["description"],
-            date=datetime.strptime(data["date"], "%Y-%m-%d"),
-            type=data["type"],
-            budget_id=data.get("budget_id")
-        )
-        new_transaction.validate_amount()
-        new_transaction.save_to_db()
+        # new_transaction = Transaction(
+        #     amount=float(data["amount"]),
+        #     description=data["description"],
+        #     date=datetime.strptime(data["date"], "%Y-%m-%d"),
+        #     type=data["type"],
+        #     budget_id=data.get("budget_id")
+        # )
+        # new_transaction.validate_amount()
+        # new_transaction.save_to_db()
+        new_transaction = TransactionService.create_transaction(data)
         return jsonify({"message": "Created", "id": new_transaction.id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 @api.route("/api/transactions", methods=["GET"])
 def view_all_transactions():
-    all_transactions = Transaction.fetch_all()
-    transaction_list = [{
-        "id": transaction.id,
-        "amount": transaction.amount,
-        "description": transaction.description,
-        "date": transaction.date.strftime("%Y-%m-%d"),
-        "type": transaction.type,
-        "budget_id": transaction.budget_id
-    } for transaction in all_transactions]
-    return jsonify(transaction_list), 200
+    try:
+        transaction_list = TransactionService.get_all_transactions()
+        return jsonify(transaction_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @api.route("/api/transactions/<int:id>", methods=["PUT"])
 def edit_transaction(id):
-    transaction_data = request.get_json()
-    updated_transaction = Transaction.update(id, transaction_data)
-    return jsonify({
-        "message": "Successfully updated transaction",
-        "id": updated_transaction.id
-    }), 200
+    try:
+        transaction_data = request.get_json()
+        updated_transaction = TransactionService.update_transaction(id, transaction_data)
+        return jsonify({
+            "message": "Successfully updated transaction",
+            "id": updated_transaction.id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @api.route("/api/transactions/<int:id>", methods=["DELETE"])
 def delete_transaction(id):
-    Transaction.delete(id)
-    return jsonify({"message": "Transaction deleted successfully"}), 200
+    try:
+        TransactionService.delete_transaction(id)
+        return jsonify({"message": "Transaction deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 # Budget Routes
 @api.route("/api/budgets", methods=["POST"])
