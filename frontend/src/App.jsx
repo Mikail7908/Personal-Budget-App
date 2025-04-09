@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import Transactions from './pages/Transactions'
 import Budget from './pages/Budget'
-import Savings from './Pages/Savings'
+import Savings from './pages/Savings'
 import './App.css'
 
 function App() {
