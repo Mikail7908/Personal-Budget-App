@@ -164,7 +164,7 @@ function Transactions() {
           <option value="savings">Savings</option>
         </select>
 
-        {form.type !== "savings" && (
+  {form.type === "expense" && (
   <select
     name="category_id"
     value={form.category_id}
@@ -179,6 +179,7 @@ function Transactions() {
     ))}
   </select>
 )}
+
 
   {form.type === "savings" && (
     <select
