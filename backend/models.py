@@ -1,6 +1,7 @@
 from datetime import datetime
 from extensions import db
 from sqlalchemy.orm import relationship
+from observers.budget_observer import BudgetObserver
 
 class BaseModel(db.Model):
     __abstract__ = True
@@ -40,14 +41,26 @@ class Transaction(BaseModel):
             raise ValueError("Amount must be greater than 0")
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        old_amount = None
+        if self.id:
+            old_transaction = Transaction.query.get(self.id)
+            old_amount = old_transaction.amount if old_transaction else None
+            
+        BaseModel.save_to_db(self)
+        BudgetObserver.update_budget_on_transaction_update(self, old_amount)
+        
+        # db.session.add(self)
+        # db.session.commit()
 
-        if self.budget_id:
-            budget = Budget.query.get(self.budget_id)
-            if budget:
-                budget.spent_amount += self.amount
-                db.session.commit()
+        # if self.budget_id:
+        #     budget = Budget.query.get(self.budget_id)
+        #     if budget:
+        #         budget.spent_amount += self.amount
+        #         db.session.commit()
+        
+    def delete_from_db(self):
+        BudgetObserver.update_budget_on_transaction_update(self, old_amount=self.amount)
+        BaseModel.delete(self)
 
     @staticmethod
     def update(transaction_id, data):
