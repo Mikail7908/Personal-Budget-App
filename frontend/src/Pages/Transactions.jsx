@@ -61,6 +61,8 @@ function Transactions() {
       budget_id: matchingBudget ? matchingBudget.id : null,
     };
 
+    console.log("Submitting transaction:", dataToSend)
+
     const method = editingId ? "PUT" : "POST";
     const url = editingId
       ? `http://127.0.0.1:5000/api/transactions/${editingId}`
