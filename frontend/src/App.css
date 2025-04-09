@@ -275,3 +275,19 @@ footer {
 .budget-list button:last-child:hover {
   background-color: #c62828;
 }
+
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 12px;
+  margin-top: 0.4rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #43a047;
+  transition: width 0.3s ease;
+}
+

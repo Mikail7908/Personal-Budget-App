@@ -24,6 +24,7 @@ class BaseModel(db.Model):
         db.session.delete(item)
         db.session.commit()
 
+# Transaction with budget-aware sync
 class Transaction(BaseModel):
     __tablename__ = "transactions"
 
@@ -100,7 +101,7 @@ class Category(BaseModel):
     __tablename__ = "categories"
 
     name = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(255), nullable=False)  # e.g., "expense", "income"
 
     @staticmethod
     def update(category_id, category_data):
