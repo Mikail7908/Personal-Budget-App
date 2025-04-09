@@ -7,7 +7,7 @@ api = Blueprint("api", __name__)
 
 @api.route("/api/test", methods=["GET"])
 def test():
-    return jsonify({"message": "Test route working ✅"})
+    return jsonify({"message": "Test route working!"}), 200
 
 # Transaction Routes
 @api.route("/api/transactions", methods=["POST"])
