@@ -23,7 +23,6 @@ def create_transaction():
     new_transaction.save_to_db()
     return jsonify({"message": "Created", "id": new_transaction.id}), 201
 
-
 @api.route("/api/transactions", methods=["GET"])
 def view_all_transactions():
     all_transactions = Transaction.fetch_all()

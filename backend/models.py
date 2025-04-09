@@ -30,6 +30,9 @@ class Transaction(BaseModel):
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)  # income or expense
+    budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
+    
+    budget = relationship("Budget", back_populates="transactions")
 
     def validate_amount(self):
         if self.amount <= 0:
@@ -42,6 +45,7 @@ class Transaction(BaseModel):
         transaction.description = transaction_data["description"]
         transaction.date = datetime.strptime(transaction_data["date"], "%Y-%m-%d")
         transaction.type = transaction_data["type"]
+        transaction.budget_id = transaction_data.get("budget_id")
         db.session.commit()
         return transaction
 
@@ -65,22 +69,33 @@ class Budget(BaseModel):
     spent_amount = db.Column(db.Float, default=0.00)
 
     category = relationship("Category", back_populates="budgets")
+    transactions = relationship("Transaction", back_populates="budget")
 
     def calculate_remaining(self):
         return self.amount - self.spent_amount
 
-    def update_spent_amount(self, amount):
-        self.spent_amount += amount
+    def save_to_db(self):
+        db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def fetch_all():
+        return Budget.query.all()
 
     @staticmethod
     def update(budget_id, budget_data):
         budget = Budget.query.get_or_404(budget_id)
         budget.amount = budget_data["amount"]
-        budget.month = budget_data["description"]
-        budget.spent_amount = datetime.strptime(budget_data["date"], "%Y-%m-%d")
+        budget.month = budget_data["month"]
         db.session.commit()
         return budget
+
+    @staticmethod
+    def delete(budget_id):
+        budget = Budget.query.get_or_404(budget_id)
+        db.session.delete(budget)
+        db.session.commit()
+
 
 class SavingsGoal(BaseModel):
     __tablename__ = "savings_goals"
