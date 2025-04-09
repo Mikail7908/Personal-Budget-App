@@ -53,8 +53,5 @@ jobs:
       run: |
         cd frontend
         npm install -g vercel
-        vercel --prod \
-               --token=${{ secrets.VERCEL_TOKEN }} \
-               --confirm \
-               --scope=${{ secrets.VERCEL_ORG_ID }} \
-               --project=${{ secrets.VERCEL_PROJECT_ID }}
+        vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --confirm
+
