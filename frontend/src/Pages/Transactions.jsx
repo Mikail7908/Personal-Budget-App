@@ -16,7 +16,7 @@ function Transactions() {
       .then((res) => res.json())
       .then((data) => {
         setTransactions(data);
-        console.log("📦 Fetched transactions:", data);
+        console.log("Fetched transactions:", data);
       })
       .catch((err) =>
         console.error("Error fetching transactions:", err)
@@ -35,7 +35,7 @@ function Transactions() {
   // Submit (add or edit)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀 Submitting transaction:", form);
+    console.log("Submitting transaction:", form);
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
@@ -83,7 +83,7 @@ function Transactions() {
       method: "DELETE",
     })
       .then(() => {
-        console.log(`🗑️ Deleted transaction ${id}`);
+        console.log(`Deleted transaction ${id}`);
         fetchTransactions();
       })
       .catch((err) =>

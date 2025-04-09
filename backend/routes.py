@@ -8,7 +8,7 @@ api = Blueprint("api", __name__)
 
 @api.route("/api/test", methods=["GET"])
 def test():
-    return jsonify({"message": "Test route working ✅"})
+    return jsonify({"message": "Test route working!"}), 200
 
 @api.route("/api/transactions", methods=["POST"])
 def create_transaction():
@@ -54,7 +54,7 @@ def delete_transaction(id):
 def create_budget_goal():
     return jsonify({"message": "Not implemented"}), 501
 
-@api.route("/budget-goals", methods=["GET"])  # ✅ FIXED: changed to GET
+@api.route("/budget-goals", methods=["GET"])
 def view_all_budget_goals():
     return jsonify({"message": "Not implemented"}), 501
 
