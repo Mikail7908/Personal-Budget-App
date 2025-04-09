@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
+  const [budgets, setBudgets] = useState([]);
   const [form, setForm] = useState({
     amount: "",
     description: "",
     date: "",
     type: "expense",
+    budget_id: "",
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -23,8 +25,21 @@ function Transactions() {
       );
   };
 
+  const fetchBudgets = () => {
+    fetch("http://127.0.0.1:5000/api/budget")
+    .then((res) => res.json())
+    .then ((data) => {
+      setBudgets(data);
+      console.log("Fetched budgets:", data);
+    })
+    .catch((err) =>
+      console.error("Error fetching budgets:", err)
+    );
+  }
+
   useEffect(() => {
     fetchTransactions();
+    fetchBudgets();
   }, []);
 
   // Handle input changes
@@ -57,7 +72,13 @@ function Transactions() {
       const result = await res.json();
       console.log("Backend response:", result);
 
-      setForm({ amount: "", description: "", date: "", type: "expense" });
+      setForm({
+        amount: "",
+        description: "",
+        date: "",
+        type: "expense",
+        budget_id: ""
+      });
       setEditingId(null);
       fetchTransactions();
     } catch (err) {
@@ -73,6 +94,7 @@ function Transactions() {
       description: txn.description,
       date: txn.date,
       type: txn.type,
+      budget_id: txn.budget_id || "",
     });
     setEditingId(txn.id); // assuming backend now returns 'id'
   };
@@ -123,6 +145,14 @@ function Transactions() {
           <option value="expense">Expense</option>
           <option value="income">Income</option>
         </select>
+        <select name="budget_id" value={form.budget_id || ""} onChange={handleChange}>
+          <option value="">No Budget</option>
+          {budgets.map((budget) => (
+            <option key={budget.id} value={budget.id}>
+              {budget.category_id} - {budget.month}
+            </option>
+          ))}
+        </select>
         <button type="submit">{editingId ? "Update" : "Add"} Transaction</button>
       </form>
 
@@ -133,6 +163,11 @@ function Transactions() {
             <span>{txn.description}</span>
             <span>{txn.date}</span>
             <span>{txn.type}</span>
+            <span>
+              {txn.budget_id
+                ? `Budget ID: ${txn.budget_id}`
+                : "No Budget Assigned"}
+            </span>
             <button onClick={() => handleEdit(txn)}>Edit</button>
             <button onClick={() => handleDelete(txn.id)}>Delete</button>
           </li>

@@ -30,6 +30,9 @@ class Transaction(BaseModel):
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)  # income or expense
+    budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
+    
+    budget = relationship("Budget", back_populates="transactions")
 
     def validate_amount(self):
         if self.amount <= 0:
@@ -42,6 +45,7 @@ class Transaction(BaseModel):
         transaction.description = transaction_data["description"]
         transaction.date = datetime.strptime(transaction_data["date"], "%Y-%m-%d")
         transaction.type = transaction_data["type"]
+        transaction.budget_id = transaction_data.get("budget_id")
         db.session.commit()
         return transaction
 
@@ -54,6 +58,14 @@ class Category(BaseModel):
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False)  # e.g., "expense", "income"
 
+    @staticmethod
+    def update(category_id, category_data):
+        category = Category.query.get_or_404(category_id)
+        category.name = category_data["name"]
+        category.type = category_data["type"]
+        db.session.commit()
+        return category
+
     budgets = relationship("Budget", back_populates="category")
 
 class Budget(BaseModel):
@@ -65,22 +77,19 @@ class Budget(BaseModel):
     spent_amount = db.Column(db.Float, default=0.00)
 
     category = relationship("Category", back_populates="budgets")
+    transactions = relationship("Transaction", back_populates="budget")
 
     def calculate_remaining(self):
         return self.amount - self.spent_amount
-
-    def update_spent_amount(self, amount):
-        self.spent_amount += amount
-        db.session.commit()
 
     @staticmethod
     def update(budget_id, budget_data):
         budget = Budget.query.get_or_404(budget_id)
         budget.amount = budget_data["amount"]
-        budget.month = budget_data["description"]
-        budget.spent_amount = datetime.strptime(budget_data["date"], "%Y-%m-%d")
+        budget.month = budget_data["month"]
         db.session.commit()
         return budget
+
 
 class SavingsGoal(BaseModel):
     __tablename__ = "savings_goals"
@@ -93,6 +102,17 @@ class SavingsGoal(BaseModel):
 
     def calculate_progress(self):
         return (self.current_amount / self.target_amount) * 100 if self.target_amount else 0
+
+    @staticmethod
+    def update(savings_goal_id, savings_goal_data):
+        savings_goal = SavingsGoal.query.get_or_404(savings_goal_id)
+        savings_goal.target_amount = float(savings_goal_data["target_amount"])
+        savings_goal.current_amount = float(savings_goal_data["current_amount"])
+        savings_goal.deadline = datetime.strptime(savings_goal_data["deadline"], "%Y-%m-%d")
+        savings_goal.description = savings_goal_data["description"]
+        savings_goal.saving_frequency = savings_goal_data["saving_frequency"]
+        db.session.commit()
+        return savings_goal
 
     def __repr__(self):
         return f"<SavingsGoal {self.id}: {self.description} - Progress: {self.calculate_progress():.1f}%>"
