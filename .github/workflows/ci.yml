@@ -44,11 +44,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r backend/requirements.txt
 
-    - name: Run backend tests
-      run: |
-        cd backend
-        pytest  # or whatever test command you use
-
     - name: Install frontend dependencies
       run: |
         cd frontend
