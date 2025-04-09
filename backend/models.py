@@ -58,6 +58,14 @@ class Category(BaseModel):
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False)  # e.g., "expense", "income"
 
+    @staticmethod
+    def update(category_id, category_data):
+        category = Category.query.get_or_404(category_id)
+        category.name = category_data["name"]
+        category.type = category_data["type"]
+        db.session.commit()
+        return category
+
     budgets = relationship("Budget", back_populates="category")
 
 class Budget(BaseModel):
@@ -74,14 +82,6 @@ class Budget(BaseModel):
     def calculate_remaining(self):
         return self.amount - self.spent_amount
 
-    def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
-
-    @staticmethod
-    def fetch_all():
-        return Budget.query.all()
-
     @staticmethod
     def update(budget_id, budget_data):
         budget = Budget.query.get_or_404(budget_id)
@@ -89,12 +89,6 @@ class Budget(BaseModel):
         budget.month = budget_data["month"]
         db.session.commit()
         return budget
-
-    @staticmethod
-    def delete(budget_id):
-        budget = Budget.query.get_or_404(budget_id)
-        db.session.delete(budget)
-        db.session.commit()
 
 
 class SavingsGoal(BaseModel):
@@ -108,6 +102,17 @@ class SavingsGoal(BaseModel):
 
     def calculate_progress(self):
         return (self.current_amount / self.target_amount) * 100 if self.target_amount else 0
+
+    @staticmethod
+    def update(savings_goal_id, savings_goal_data):
+        savings_goal = SavingsGoal.query.get_or_404(savings_goal_id)
+        savings_goal.target_amount = float(savings_goal_data["target_amount"])
+        savings_goal.current_amount = float(savings_goal_data["current_amount"])
+        savings_goal.deadline = datetime.strptime(savings_goal_data["deadline"], "%Y-%m-%d")
+        savings_goal.description = savings_goal_data["description"]
+        savings_goal.saving_frequency = savings_goal_data["saving_frequency"]
+        db.session.commit()
+        return savings_goal
 
     def __repr__(self):
         return f"<SavingsGoal {self.id}: {self.description} - Progress: {self.calculate_progress():.1f}%>"
