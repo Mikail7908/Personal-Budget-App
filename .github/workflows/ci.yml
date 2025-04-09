@@ -39,13 +39,13 @@ jobs:
         cd frontend
         npm install
 
-    - name: 🛠️ Build frontend
+    - name: Build frontend
       run: |
         cd frontend
         npm run build
 
 
-    - name: ☁️ Deploy Backend to Render
+    - name: Deploy Backend to Render
       run: |
         curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 
