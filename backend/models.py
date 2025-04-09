@@ -1,29 +1,42 @@
 from datetime import datetime
-from extensions import db 
+from extensions import db
 from sqlalchemy.orm import relationship
 
-class Transaction(db.Model):
-    __tablename__ = "transactions"
+class BaseModel(db.Model):
+    __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    amount = db.Column(db.Float, nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # income or expense
-
-    def validate_amount(self):
-        if self.amount <= 0:
-            raise ValueError("Amount must be greater than 0")
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
 
-    @staticmethod
-    def fetch_all():
-        return Transaction.query.order_by(Transaction.date.desc()).all()
+    @classmethod
+    def fetch_all(cls):
+        return cls.query.order_by(cls.date.desc()).all()
+
+    @classmethod
+    def delete(cls, id):
+        item = cls.query.get_or_404(id)
+        db.session.delete(item)
+        db.session.commit()
+
+class Transaction(BaseModel):
+    __tablename__ = "transactions"
+
+    amount = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # income or expense
+    budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
+    
+    budget = relationship("Budget", back_populates="transactions")
+
+    def validate_amount(self):
+        if self.amount <= 0:
+            raise ValueError("Amount must be greater than 0")
 
     @staticmethod
     def update(transaction_id, transaction_data):
@@ -32,55 +45,55 @@ class Transaction(db.Model):
         transaction.description = transaction_data["description"]
         transaction.date = datetime.strptime(transaction_data["date"], "%Y-%m-%d")
         transaction.type = transaction_data["type"]
+        transaction.budget_id = transaction_data.get("budget_id")
         db.session.commit()
         return transaction
-
-    @staticmethod
-    def delete(transaction_id):
-        transaction = Transaction.query.get_or_404(transaction_id)
-        db.session.delete(transaction)
-        db.session.commit()
 
     def __repr__(self):
         return f"<Transaction {self.id}: {self.description} - {self.amount}>"
 
-class Category(db.Model):
+class Category(BaseModel):
     __tablename__ = "categories"
 
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False)  # e.g., "expense", "income"
 
+    @staticmethod
+    def update(category_id, category_data):
+        category = Category.query.get_or_404(category_id)
+        category.name = category_data["name"]
+        category.type = category_data["type"]
+        db.session.commit()
+        return category
+
     budgets = relationship("Budget", back_populates="category")
 
-class Budget(db.Model):
+class Budget(BaseModel):
     __tablename__ = "budgets"
 
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     month = db.Column(db.String(20), nullable=False)
     spent_amount = db.Column(db.Float, default=0.00)
 
     category = relationship("Category", back_populates="budgets")
+    transactions = relationship("Transaction", back_populates="budget")
 
     def calculate_remaining(self):
         return self.amount - self.spent_amount
 
-    def update_spent_amount(self, amount):
-        self.spent_amount += amount
+    @staticmethod
+    def update(budget_id, budget_data):
+        budget = Budget.query.get_or_404(budget_id)
+        budget.amount = budget_data["amount"]
+        budget.month = budget_data["month"]
         db.session.commit()
+        return budget
 
-class SavingsGoal(db.Model):
+
+class SavingsGoal(BaseModel):
     __tablename__ = "savings_goals"
 
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.00, nullable=False)
     deadline = db.Column(db.DateTime, nullable=False)
@@ -89,6 +102,17 @@ class SavingsGoal(db.Model):
 
     def calculate_progress(self):
         return (self.current_amount / self.target_amount) * 100 if self.target_amount else 0
+
+    @staticmethod
+    def update(savings_goal_id, savings_goal_data):
+        savings_goal = SavingsGoal.query.get_or_404(savings_goal_id)
+        savings_goal.target_amount = float(savings_goal_data["target_amount"])
+        savings_goal.current_amount = float(savings_goal_data["current_amount"])
+        savings_goal.deadline = datetime.strptime(savings_goal_data["deadline"], "%Y-%m-%d")
+        savings_goal.description = savings_goal_data["description"]
+        savings_goal.saving_frequency = savings_goal_data["saving_frequency"]
+        db.session.commit()
+        return savings_goal
 
     def __repr__(self):
         return f"<SavingsGoal {self.id}: {self.description} - Progress: {self.calculate_progress():.1f}%>"
