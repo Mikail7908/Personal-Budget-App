@@ -1,6 +1,6 @@
-from models import Transaction, Budget
+from backend.models import Transaction, Budget
 from datetime import datetime
-from observers.budget_observer import BudgetObserver
+from backend.observers.budget_observer import BudgetObserver
 
 
 class TransactionService:
@@ -36,19 +36,19 @@ class TransactionService:
 
         # Store original values
         old_budget_id = transaction.budget_id
-        old_amount = transaction.amount
+        old_amount = float(transaction.amount)
 
         # Update with new data
-        transaction.amount = data["amount"]
+        transaction.amount = float(data["amount"])
         transaction.description = data["description"]
         transaction.date = datetime.strptime(data["date"], "%Y-%m-%d")
         transaction.type = data["type"]
         transaction.budget_id = data.get("budget_id")
         
         transaction.validate_amount()
-        transaction.save_to_db()
+        transaction.save_to_db(old_amount=old_amount)
         
-        BudgetObserver.update_budget_on_transaction_update(transaction, old_amount)
+        # BudgetObserver.update_budget_on_transaction_update(transaction, old_amount, new_amount=transaction.amount)
         return transaction
     
     @staticmethod
