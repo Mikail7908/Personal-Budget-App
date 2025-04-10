@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import Home from './pages/Home'
-import Transactions from './pages/Transactions'
-import Budget from './pages/Budget'
+import Home from './Pages/Home'
+import Transactions from './Pages/Transactions'
+import Budget from './Pages/Budget'
 import Savings from './Pages/Savings'
 import './App.css'
 
