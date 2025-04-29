@@ -47,73 +47,11 @@ class Transaction(BaseModel):
             old_amount=old_amount,
             new_amount=self.amount
         )
-        # old_amount = None
-        # if self.id and old_amount is None:
-        #     old_transaction = Transaction.query.get(self.id)
-        #     old_amount = old_transaction.amount if old_transaction else None
-            
-        # BaseModel.save_to_db(self)
-        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
-        
-        # db.session.add(self)
-        # db.session.commit()
-
-        # if self.budget_id:
-        #     budget = Budget.query.get(self.budget_id)
-        #     if budget:
-        #         budget.spent_amount += self.amount
-        #         db.session.commit()
         
     def delete_from_db(self):
         BudgetObserver.update_budget_on_transaction_update(self, old_amount=self.amount, new_amount=None)
         db.session.delete(self)
         db.session.commit()
-        # BaseModel.delete(self)
-
-    # @staticmethod
-    # def update(transaction_id, data):
-    #     transaction = Transaction.query.get_or_404(transaction_id)
-
-    #     # Store original values
-    #     old_budget_id = transaction.budget_id
-    #     old_amount = transaction.amount
-
-    #     # Update with new data
-    #     transaction.amount = data["amount"]
-    #     transaction.description = data["description"]
-    #     transaction.date = datetime.strptime(data["date"], "%Y-%m-%d")
-    #     transaction.type = data["type"]
-    #     transaction.budget_id = data.get("budget_id")
-
-    #     db.session.commit()
-
-    #     # Handle budget changes
-    #     if old_budget_id:
-    #         old_budget = Budget.query.get(old_budget_id)
-    #         if old_budget:
-    #             old_budget.spent_amount -= old_amount
-    #             old_budget.spent_amount = max(old_budget.spent_amount, 0)
-
-    #     if transaction.budget_id:
-    #         new_budget = Budget.query.get(transaction.budget_id)
-    #         if new_budget:
-    #             new_budget.spent_amount += transaction.amount
-
-    #     db.session.commit()
-    #     return transaction
-
-    # @staticmethod
-    # def delete(transaction_id):
-    #     transaction = Transaction.query.get_or_404(transaction_id)
-
-    #     if transaction.budget_id:
-    #         budget = Budget.query.get(transaction.budget_id)
-    #         if budget:
-    #             budget.spent_amount -= transaction.amount
-    #             budget.spent_amount = max(budget.spent_amount, 0)
-
-    #     db.session.delete(transaction)
-    #     db.session.commit()
 
     def __repr__(self):
         return f"<Transaction {self.id}: {self.description} - {self.amount}>"
