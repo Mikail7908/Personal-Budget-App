@@ -10,20 +10,10 @@ api = Blueprint("api", __name__)
 def test():
     return jsonify({"message": "Test route working!"}), 200
 
-# Transaction Routes
 @api.route("/api/transactions", methods=["POST"])
 def create_transaction():
     try:
         data = request.get_json()
-        # new_transaction = Transaction(
-        #     amount=float(data["amount"]),
-        #     description=data["description"],
-        #     date=datetime.strptime(data["date"], "%Y-%m-%d"),
-        #     type=data["type"],
-        #     budget_id=data.get("budget_id")
-        # )
-        # new_transaction.validate_amount()
-        # new_transaction.save_to_db()
         new_transaction = TransactionService.create_transaction(data)
         return jsonify({"message": "Created", "id": new_transaction.id}), 201
     except Exception as e:
