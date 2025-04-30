@@ -1,4 +1,3 @@
-# routes.py
 from flask import Blueprint, request, jsonify
 from models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
@@ -15,15 +14,6 @@ def test():
 def create_transaction():
     try:
         data = request.get_json()
-        # new_transaction = Transaction(
-        #     amount=float(data["amount"]),
-        #     description=data["description"],
-        #     date=datetime.strptime(data["date"], "%Y-%m-%d"),
-        #     type=data["type"],
-        #     budget_id=data.get("budget_id")
-        # )
-        # new_transaction.validate_amount()
-        # new_transaction.save_to_db()
         new_transaction = TransactionService.create_transaction(data)
         return jsonify({"message": "Created", "id": new_transaction.id}), 201
     except Exception as e:
@@ -81,12 +71,14 @@ def view_all_budgets():
     budget_list = [{
         "id": budget.id,
         "category_id": budget.category_id,
+        "category_name": budget.category.name,  
         "amount": budget.amount,
         "month": budget.month,
         "spent_amount": budget.spent_amount,
         "remaining": budget.calculate_remaining()
     } for budget in all_budgets]
     return jsonify(budget_list), 200
+
 
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
 def edit_budget(budget_id):
