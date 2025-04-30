@@ -166,10 +166,10 @@ function Budget() {
       <ul className="budget-list">
         {budgets.map((budget) => (
           <li key={budget.id}>
-            <strong>Month:</strong> {budget.month} |{" "}
-            <strong>Category:</strong> {getCategoryName(budget.category_id)} |{" "}
-            <strong>Amount:</strong> £{budget.amount.toFixed(2)} |{" "}
-            <strong>Spent:</strong> £{budget.spent_amount.toFixed(2)} |{" "}
+            <strong>Month:</strong> {budget.month}
+            <strong>Category:</strong> {getCategoryName(budget.category_id)}
+            <strong>Amount:</strong> £{budget.amount.toFixed(2)}
+            <strong>Spent:</strong> £{budget.spent_amount.toFixed(2)}
             <strong>Remaining:</strong> £{budget.remaining.toFixed(2)}
             <div style={{ marginTop: "0.5rem" }}>
               <button onClick={() => handleEdit(budget)}>Edit</button>

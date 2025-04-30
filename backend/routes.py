@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from models import Transaction, Budget, Category, SavingsGoal
+from backend.models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
-from services.transaction_service import TransactionService
+from backend.services.transaction_service import TransactionService
 
 api = Blueprint("api", __name__)
 
