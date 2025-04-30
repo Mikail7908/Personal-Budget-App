@@ -18,6 +18,11 @@ function Savings() {
       .catch((err) => console.error("Error fetching savings goals:", err));
   };
 
+
+  const updateGoals = () => {
+    fetchGoals(); 
+  };
+
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -53,7 +58,9 @@ function Savings() {
         saving_frequency: "",
       });
       setEditingId(null);
-      fetchGoals();
+
+      updateGoals();
+
     } catch (err) {
       console.error(err.message);
     }
@@ -76,6 +83,12 @@ function Savings() {
     })
       .then(fetchGoals)
       .catch((err) => console.error("Error deleting goal:", err));
+  };
+
+  // Calculate progress
+  const calculateProgress = (current_amount, target_amount) => {
+    if (!target_amount) return 0; // Avoid divide by zero
+    return (current_amount / target_amount) * 100;
   };
 
   return (
@@ -127,26 +140,30 @@ function Savings() {
       </form>
 
       <ul className="budget-list">
-        {goals.map((goal) => (
-          <li key={goal.id}>
-            <strong>{goal.description}</strong>
-            <span>Target: £{goal.target_amount.toFixed(2)}</span>
-            <span>Saved: £{goal.current_amount.toFixed(2)}</span>
-            <span>Deadline: {goal.deadline}</span>
-            <span>Frequency: {goal.saving_frequency}</span>
-            <div>
-              <span>Progress: {goal.progress.toFixed(1)}%</span>
-              <div className="progress-bar">
-                <div
-                  className="progress-bar-fill"
-                  style={{ width: `${Math.min(goal.progress, 100)}%` }}
-                />
+        {goals.map((goal) => {
+          const progress = calculateProgress(goal.current_amount, goal.target_amount);
+
+          return (
+            <li key={goal.id}>
+              <strong>{goal.description}</strong>
+              <span>Target: £{goal.target_amount.toFixed(2)}</span>
+              <span>Saved: £{goal.current_amount.toFixed(2)}</span>
+              <span>Deadline: {goal.deadline}</span>
+              <span>Frequency: {goal.saving_frequency}</span>
+              <div>
+                <span>Progress: {progress.toFixed(1)}%</span>
+                <div className="progress-bar">
+                  <div
+                    className="progress-bar-fill"
+                    style={{ width: `${Math.min(progress, 100)}%` }}
+                  />
+                </div>
               </div>
-            </div>
-            <button onClick={() => handleEdit(goal)}>Edit</button>
-            <button onClick={() => handleDelete(goal.id)}>Delete</button>
-          </li>
-        ))}
+              <button onClick={() => handleEdit(goal)}>Edit</button>
+              <button onClick={() => handleDelete(goal.id)}>Delete</button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

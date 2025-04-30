@@ -1,9 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import Home from './Pages/Home'
-import Transactions from './Pages/Transactions'
-import Budget from './Pages/Budget'
-import Savings from './Pages/Savings'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Home from './Pages/Home';
+import Transactions from './Pages/Transactions';
+import Budget from './Pages/Budget';
+import Savings from './Pages/Savings';
+import './App.css';
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
         </Routes>
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
-function Transactions() {
+function Transactions({ onGoalChange }) {
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [savingsGoals, setSavingsGoals] = useState([]);  
   const [form, setForm] = useState({
     amount: "",
     description: "",
@@ -35,10 +36,18 @@ function Transactions() {
       .catch((err) => console.error("Error fetching categories:", err));
   };
 
+  const fetchSavingsGoals = () => {
+    fetch("http://127.0.0.1:5000/api/savings-goals") 
+      .then((res) => res.json())
+      .then(setSavingsGoals)
+      .catch((err) => console.error("Error fetching savings goals:", err));
+  };
+
   useEffect(() => {
     fetchTransactions();
     fetchBudgets();
     fetchCategories();
+    fetchSavingsGoals();  
   }, []);
 
   const handleChange = (e) => {
@@ -60,7 +69,7 @@ function Transactions() {
       date: form.date,
       type: form.type,
       budget_id: matchingBudget ? matchingBudget.id : null,
-      savings_id: form.savings_id || null,
+      savings_goal_id: form.savings_id || null,
     };
 
     console.log("Submitting transaction:", dataToSend);
@@ -77,7 +86,33 @@ function Transactions() {
         body: JSON.stringify(dataToSend),
       });
 
-      await res.json();
+      const response = await res.json();
+
+      
+      if (form.type === "savings" && form.savings_id) {
+        const updatedGoal = savingsGoals.find(
+          (goal) => goal.id === form.savings_id
+        );
+        
+        if (updatedGoal) {
+          updatedGoal.current_amount += parseFloat(form.amount);  
+          
+          
+          await fetch(`http://127.0.0.1:5000/api/savings-goals/${updatedGoal.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedGoal),
+          });
+
+          
+          setSavingsGoals((prevGoals) =>
+            prevGoals.map((goal) =>
+              goal.id === updatedGoal.id ? updatedGoal : goal
+            )
+          );
+        }
+      }
+
       setForm({
         amount: "",
         description: "",
@@ -89,6 +124,12 @@ function Transactions() {
       setEditingId(null);
       fetchTransactions();
       fetchBudgets();
+      fetchSavingsGoals();
+
+      
+      if (onGoalChange) {
+        onGoalChange();
+      }
     } catch (err) {
       console.error("Error submitting transaction:", err.message);
       alert("Error: " + err.message);
@@ -102,7 +143,7 @@ function Transactions() {
       date: txn.date,
       type: txn.type,
       category_id: txn.category_id || "",
-      savings_id: txn.savings_id || "",
+      savings_id: txn.savings_goal_id || "",
     });
     setEditingId(txn.id);
   };
@@ -128,6 +169,11 @@ function Transactions() {
     const categoryName = category ? category.name : "Unknown Category";
 
     return `${categoryName} (${budget.month})`;
+  };
+
+  const getSavingsGoal = (savingsId) => {
+    const goal = savingsGoals.find((g) => g.id === savingsId);
+    return goal ? goal.description : "Unknown Savings Goal"; 
   };
 
   return (
@@ -164,40 +210,37 @@ function Transactions() {
           <option value="savings">Savings</option>
         </select>
 
-  {form.type === "expense" && (
-  <select
-    name="category_id"
-    value={form.category_id}
-    onChange={handleChange}
-    required
-  >
-    <option value="">Select Budget</option>
-    {categories.map((cat) => (
-      <option key={cat.id} value={cat.id}>
-        {cat.name} ({cat.type})
-      </option>
-    ))}
-  </select>
-)}
+        {form.type === "expense" && (
+          <select
+            name="category_id"
+            value={form.category_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Budget</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name} ({cat.type})
+              </option>
+            ))}
+          </select>
+        )}
 
-
-  {form.type === "savings" && (
-    <select
-      name="savings_id"
-      value={form.savings_id}
-      onChange={handleChange}
-      required
-    >
-      <option value="">Select Savings</option>
-      {categories
-        .filter((cat) => cat.type === "savings")
-        .map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-    </select>
-  )}
+        {form.type === "savings" && (
+          <select
+            name="savings_id"
+            value={form.savings_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Savings Goal</option>
+            {savingsGoals.map((goal) => (
+              <option key={goal.id} value={goal.id}>
+                {goal.description} 
+              </option>
+            ))}
+          </select>
+        )}
 
         <button type="submit">{editingId ? "Update" : "Add"} Transaction</button>
       </form>
@@ -215,8 +258,8 @@ function Transactions() {
                 : "No Budget Assigned"}
             </span>
             <span>
-              {txn.category_id
-                ? `Category: ${getCategoryName(txn.category_id)}`
+              {txn.savings_id
+                ? `Savings Goal: ${getSavingsGoal(txn.savings_id)}`
                 : ""}
             </span>
             <button onClick={() => handleEdit(txn)}>Edit</button>
