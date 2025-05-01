@@ -11,16 +11,17 @@ function Savings() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
   const fetchGoals = () => {
-    fetch("http://127.0.0.1:5000/api/savings-goals")
+    fetch(`${API_BASE}/api/savings-goals`)
       .then((res) => res.json())
       .then(setGoals)
       .catch((err) => console.error("Error fetching savings goals:", err));
   };
 
-
   const updateGoals = () => {
-    fetchGoals(); 
+    fetchGoals();
   };
 
   useEffect(() => {
@@ -35,8 +36,8 @@ function Savings() {
     e.preventDefault();
 
     const url = editingId
-      ? `http://127.0.0.1:5000/api/savings-goals/${editingId}`
-      : "http://127.0.0.1:5000/api/savings-goals";
+      ? `${API_BASE}/api/savings-goals/${editingId}`
+      : `${API_BASE}/api/savings-goals`;
 
     const method = editingId ? "PUT" : "POST";
 
@@ -60,7 +61,6 @@ function Savings() {
       setEditingId(null);
 
       updateGoals();
-
     } catch (err) {
       console.error(err.message);
     }
@@ -78,7 +78,7 @@ function Savings() {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://127.0.0.1:5000/api/savings-goals/${id}`, {
+    fetch(`${API_BASE}/api/savings-goals/${id}`, {
       method: "DELETE",
     })
       .then(fetchGoals)

@@ -1,4 +1,4 @@
-from backend.models import Budget, Category
+from models import Budget, Category
 from datetime import datetime
 
 class BudgetService:

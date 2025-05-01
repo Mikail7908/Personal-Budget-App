@@ -1,7 +1,7 @@
 from datetime import datetime
-from backend.extensions import db
+from extensions import db
 from sqlalchemy.orm import relationship
-from backend.observers.budget_observer import BudgetObserver
+from observers.budget_observer import BudgetObserver
 
 class BaseModel(db.Model):
     __abstract__ = True
