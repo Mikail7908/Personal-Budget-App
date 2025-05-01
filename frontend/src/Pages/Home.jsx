@@ -19,6 +19,7 @@ function Home() {
   const [budgets, setBudgets] = useState([]);
   const [savingsGoals, setSavingsGoals] = useState([]);
 
+  // Fetch API base URL from environment variables
   const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
 
   useEffect(() => {
@@ -34,28 +35,32 @@ function Home() {
       .then((res) => res.json())
       .then(setSavingsGoals);
   }, []);
-
+  // Calculate total income, expenses, and net balance
   const totalIncome = transactions
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
 
+  // Calculate total expenses
   const totalExpense = transactions
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const netBalance = totalIncome - totalExpense;
 
+  // Calculate total spent amount for each budget category
   const budgetChartData = budgets.map((b) => ({
     name: b.category_name,
     Allocated: b.amount,
     Spent: b.spent_amount,
   }));
 
+  // Calculate spending by category
   const spendingByCategoryData = budgets.map((budget) => ({
     category: budget.category_name,
     spent: budget.spent_amount,
   }));
 
+  // Calculate savings progress
   const savingsProgressData = savingsGoals.map((goal) => ({
     name: goal.description,
     value: goal.current_amount,
@@ -72,6 +77,7 @@ function Home() {
     "#eab308",
   ];
 
+  // Pie chart data for income vs expenses
   const pieData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpense },

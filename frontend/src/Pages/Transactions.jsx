@@ -15,8 +15,10 @@ function Transactions({ onGoalChange }) {
   });
   const [editingId, setEditingId] = useState(null);
 
+  // Fetch API base URL from environment variables
   const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
 
+  // Fetch transactions, budgets, categories, and savings goals from the API
   const fetchTransactions = () => {
     fetch(`${API_BASE}/api/transactions`)
       .then((res) => res.json())
@@ -52,10 +54,12 @@ function Transactions({ onGoalChange }) {
     fetchSavingsGoals();  
   }, []);
 
+  // Handle form input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission for adding or updating a transaction
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -134,6 +138,7 @@ function Transactions({ onGoalChange }) {
     }
   };
 
+  // Handle editing a transaction
   const handleEdit = (txn) => {
     setForm({
       amount: txn.amount,
@@ -146,6 +151,7 @@ function Transactions({ onGoalChange }) {
     setEditingId(txn.id);
   };
 
+  // Handle deleting a transaction
   const handleDelete = (id) => {
     fetch(`${API_BASE}/api/transactions/${id}`, {
       method: "DELETE",
@@ -154,6 +160,7 @@ function Transactions({ onGoalChange }) {
       .catch((err) => console.error("Error deleting transaction:", err));
   };
 
+  // Get budget name by ID
   const getBudgetName = (budgetId) => {
     const budget = budgets.find((b) => b.id === budgetId);
     if (!budget) return "Unknown Budget";
