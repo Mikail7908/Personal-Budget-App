@@ -10,9 +10,11 @@ function Savings() {
     saving_frequency: "",
   });
   const [editingId, setEditingId] = useState(null);
-
+  
+  // Fetch API base URL from environment variables
   const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
 
+  // Fetch savings goals from the API
   const fetchGoals = () => {
     fetch(`${API_BASE}/api/savings-goals`)
       .then((res) => res.json())
@@ -32,6 +34,7 @@ function Savings() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission for adding or updating a savings goal
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -66,6 +69,7 @@ function Savings() {
     }
   };
 
+  // Handle editing a savings goal
   const handleEdit = (goal) => {
     setForm({
       target_amount: goal.target_amount,
@@ -77,6 +81,7 @@ function Savings() {
     setEditingId(goal.id);
   };
 
+  // Handle deleting a savings goal
   const handleDelete = (id) => {
     fetch(`${API_BASE}/api/savings-goals/${id}`, {
       method: "DELETE",
@@ -144,6 +149,7 @@ function Savings() {
           const progress = calculateProgress(goal.current_amount, goal.target_amount);
 
           return (
+            // Display each savings goal
             <li key={goal.id}>
               <strong>{goal.description}</strong>
               <span>Target: £{goal.target_amount.toFixed(2)}</span>

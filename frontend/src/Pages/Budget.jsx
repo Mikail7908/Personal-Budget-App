@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+// Budget component to manage monthly budgets
 function Budget() {
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -14,8 +15,10 @@ function Budget() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  // Fetch API base URL from environment variables
   const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
 
+  // Fetch budgets and categories from the API
   const fetchBudgets = () => {
     fetch(`${API_BASE}/api/budgets`)
       .then((res) => res.json())
@@ -23,6 +26,7 @@ function Budget() {
       .catch(console.error);
   };
 
+  // Fetch categories from the API
   const fetchCategories = () => {
     fetch(`${API_BASE}/api/categories`)
       .then((res) => res.json())
@@ -38,7 +42,7 @@ function Budget() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  // Handle form submission for budgets
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -62,7 +66,7 @@ function Budget() {
       console.error("Error submitting budget:", err.message);
     }
   };
-
+  // Handle editing a budget
   const handleEdit = (budget) => {
     setForm({
       category_id: budget.category_id,
@@ -71,18 +75,18 @@ function Budget() {
     });
     setEditingId(budget.id);
   };
-
+  // Handle deleting a budget
   const handleDelete = (id) => {
     fetch(`${API_BASE}/api/budgets/${id}`, { method: "DELETE" })
       .then(fetchBudgets)
       .catch(console.error);
   };
-
+  // Get category name by ID
   const getCategoryName = (id) => {
     const cat = categories.find((c) => c.id === id);
     return cat ? cat.name : `Category ${id}`;
   };
-
+  // Handle form submission for categories
   const handleCategorySubmit = (e) => {
     e.preventDefault();
     fetch(`${API_BASE}/api/categories`, {
