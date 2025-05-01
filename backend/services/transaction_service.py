@@ -18,12 +18,6 @@ class TransactionService:
             transaction.validate_amount()
             transaction.save_to_db()
 
-            # Update the budget if a budget ID is provided
-            if transaction.budget_id:
-                budget = Budget.query.get(transaction.budget_id)
-                if budget:
-                    budget.spent_amount += transaction.amount
-                    budget.save_to_db()
             # Update the savings goal if a savings_goal_id is provided
             if transaction.savings_goal_id:
                 savings_goal = SavingsGoal.query.get(transaction.savings_goal_id)
@@ -63,7 +57,7 @@ class TransactionService:
             old_budget_id = transaction.budget_id
 
             # Update the transaction data
-            transaction.amount = data["amount"]
+            transaction.amount = float(data["amount"])
             transaction.description = data["description"]
             transaction.date = datetime.strptime(data["date"], "%Y-%m-%d")
             transaction.type = data["type"]
@@ -72,21 +66,7 @@ class TransactionService:
 
             transaction.validate_amount()
 
-            transaction.save_to_db()
-
-    
-            if transaction.budget_id != old_budget_id:
-                if old_budget_id:
-                    old_budget = Budget.query.get(old_budget_id)
-                    if old_budget:
-                        old_budget.spent_amount -= old_amount  
-                        old_budget.save_to_db()
-                if transaction.budget_id:
-                    new_budget = Budget.query.get(transaction.budget_id)
-                    if new_budget:
-                        new_budget.spent_amount += transaction.amount 
-                        new_budget.save_to_db()
-
+            transaction.save_to_db(old_amount=old_amount)
             
             if old_savings_goal_id != transaction.savings_goal_id:
                 if old_savings_goal_id:
