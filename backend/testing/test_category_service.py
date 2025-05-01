@@ -5,9 +5,9 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-from backend.main import app, db
-from backend.models import Budget, Category
-from backend.services.category_service import CategoryService
+from main import app, db
+from models import Budget, Category
+from services.category_service import CategoryService
 
 class TestCategoryService(unittest.TestCase):
     def setUp(self):

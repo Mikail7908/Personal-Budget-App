@@ -5,9 +5,9 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-from backend.main import app, db
-from backend.models import Budget, Category
-from backend.services.budget_service import BudgetService
+from main import app, db
+from models import Budget, Category
+from services.budget_service import BudgetService
 
 class TestBudgetService(unittest.TestCase):
     def setUp(self):
