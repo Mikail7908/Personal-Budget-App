@@ -9,16 +9,20 @@ app.config["SECRET_KEY"] = "super-secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///budget_database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Set CORS based on the environment
-if os.environ.get("FLASK_ENV") == "production":
-    CORS(app, resources={r"/api/*": {"origins": "https://personal-budget-app-u093.onrender.com"}})
-else:
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+# Load frontend URL from environment or default to local dev
+frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+
+# CORS configuration
+CORS(app, resources={r"/api/*": {
+    "origins": frontend_url,
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "allow_headers": ["Content-Type"]
+}})
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Import routes *after* app + db setup
+# Import routes after app and db setup
 from routes import api
 app.register_blueprint(api)
 
