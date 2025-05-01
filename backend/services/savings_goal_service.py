@@ -1,4 +1,4 @@
-from backend.models import SavingsGoal
+from models import SavingsGoal
 from datetime import datetime
 
 class SavingsGoalService:
