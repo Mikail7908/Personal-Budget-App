@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_cors import CORS
-from extensions import db
+from backend.extensions import db
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret"
@@ -15,8 +15,8 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Import routes *after* app + db setup
-import models
-from routes import api
+# import models
+from backend.routes import api
 
 app.register_blueprint(api) 
 

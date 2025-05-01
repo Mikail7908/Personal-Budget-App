@@ -1,7 +1,7 @@
 from datetime import datetime
-from extensions import db
+from backend.extensions import db
 from sqlalchemy.orm import relationship
-from observers.budget_observer import BudgetObserver
+from backend.observers.budget_observer import BudgetObserver
 
 class BaseModel(db.Model):
     __abstract__ = True
@@ -40,14 +40,20 @@ class Transaction(BaseModel):
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
 
-    def save_to_db(self):
-        old_amount = None
-        if self.id:
-            old_transaction = Transaction.query.get(self.id)
-            old_amount = old_transaction.amount if old_transaction else None
-            
+    def save_to_db(self, old_amount=None):
         BaseModel.save_to_db(self)
-        BudgetObserver.update_budget_on_transaction_update(self, old_amount)
+        BudgetObserver.update_budget_on_transaction_update(
+            self,
+            old_amount=old_amount,
+            new_amount=self.amount
+        )
+        # old_amount = None
+        # if self.id and old_amount is None:
+        #     old_transaction = Transaction.query.get(self.id)
+        #     old_amount = old_transaction.amount if old_transaction else None
+            
+        # BaseModel.save_to_db(self)
+        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
         
     def delete_from_db(self):
         old_amount = self.amount

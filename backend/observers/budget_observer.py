@@ -1,7 +1,7 @@
 class BudgetObserver:
     @staticmethod
-    def update_budget_on_transaction_update(transaction, old_amount=None):
-        from models import Budget
+    def update_budget_on_transaction_update(transaction, old_amount=None, new_amount=None):
+        from backend.models import Budget
         if transaction.budget_id:
             budget = Budget.query.get(transaction.budget_id)
             if budget:
@@ -13,3 +13,4 @@ class BudgetObserver:
                 budget.spent_amount += transaction.amount
                 budget.spent_amount = max(budget.spent_amount, 0)  # Ensure non-negative spent amount
                 budget.save_to_db()
+
