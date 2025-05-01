@@ -1,0 +1,79 @@
+import os
+import sys
+import unittest
+from datetime import datetime
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
+
+from backend.main import app, db
+from backend.models import Budget, Category
+from backend.services.category_service import CategoryService
+
+class TestCategoryService(unittest.TestCase):
+    def setUp(self):
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        app.config["TESTING"] = True
+        self.app_context = app.app_context()
+        self.app_context.push()
+        
+        with app.app_context():
+            db.create_all()
+            test_category = Category(name="Test Category", type="expense")
+            db.session.add(test_category)
+            db.session.commit()
+            self.test_category_id = test_category.id
+    
+    def tearDown(self):
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
+        self.app_context.pop()
+        
+    def test_create_category(self):
+        test_new_category_data = {
+            "name": "New Test Category",
+            "type": "income"
+        }
+        
+        with app.app_context():
+            result = CategoryService.create_category(test_new_category_data)
+            self.assertIsNotNone(result)
+            self.assertEqual(result.name, "New Test Category")
+            self.assertEqual(result.type, "income")
+            saved_category = Category.query.filter_by(name="New Test Category").first()
+            self.assertIsNotNone(saved_category)
+            
+    def test_get_all_categories(self):
+        with app.app_context():
+            categories = CategoryService.get_all_categories()
+            
+            self.assertEqual(len(categories), 1)
+            self.assertEqual(categories[0]["name"], "Test Category")
+            self.assertEqual(categories[0]["type"], "expense")
+            
+    def test_update_category(self):
+        update_data = {
+            "name": "Updated Category Name",
+            "type": "income"
+        }
+        
+        with app.app_context():
+            result = CategoryService.update_category(self.test_category_id, update_data)
+            self.assertIsNotNone(result)
+            self.assertEqual(result.name, "Updated Category Name")
+            self.assertEqual(result.type, "income")
+            updated_category = Category.query.get_or_404(self.test_category_id)
+            self.assertEqual(updated_category.name, "Updated Category Name")
+            self.assertEqual(updated_category.type, "income")
+            
+    def test_delete_category(self):
+        with app.app_context():
+            initial_category_count = len(Category.query.all())
+            CategoryService.delete_category(self.test_category_id)
+            self.assertEqual(len(Category.query.all()), initial_category_count - 1)
+            self.assertIsNone(Category.query.get(self.test_category_id))
+
+
+if __name__ == "__main__":
+    unittest.main()
+    
