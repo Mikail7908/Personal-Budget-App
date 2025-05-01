@@ -32,7 +32,7 @@ jobs:
     - name: Run backend tests
       run: |
         cd backend
-        pytest || echo "No tests or failed tests (doesn't block build)"
+        pytest testing
 
     - name: Install frontend dependencies
       run: |
