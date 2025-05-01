@@ -1,6 +1,8 @@
 import sys
-import unittest
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
+
+import unittest
 from datetime import datetime
 from backend.main import app, db
 from backend.models import Transaction, Budget, SavingsGoal, Category

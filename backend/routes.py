@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
 from backend.services.transaction_service import TransactionService
+from backend.services.budget_service import BudgetService
 
 api = Blueprint("api", __name__)
 
@@ -9,7 +10,6 @@ api = Blueprint("api", __name__)
 def test():
     return jsonify({"message": "Test route working!"}), 200
 
-# Transaction Routes
 @api.route("/api/transactions", methods=["POST"])
 def create_transaction():
     try:
@@ -52,12 +52,7 @@ def delete_transaction(id):
 def create_budget():
     try:
         budget_data = request.get_json()
-        new_budget = Budget(
-            category_id=budget_data["category_id"],
-            amount=float(budget_data["amount"]),
-            month=budget_data["month"]
-        )
-        new_budget.save_to_db()
+        new_budget = BudgetService.create_budget(budget_data)
         return jsonify({
             "message": "Successfully created new budget",
             "budget_id": new_budget.id
@@ -67,32 +62,32 @@ def create_budget():
 
 @api.route("/api/budgets", methods=["GET"])
 def view_all_budgets():
-    all_budgets = Budget.fetch_all()
-    budget_list = [{
-        "id": budget.id,
-        "category_id": budget.category_id,
-        "category_name": budget.category.name,  
-        "amount": budget.amount,
-        "month": budget.month,
-        "spent_amount": budget.spent_amount,
-        "remaining": budget.calculate_remaining()
-    } for budget in all_budgets]
-    return jsonify(budget_list), 200
+    try:
+        budget_list = BudgetService.get_all_budgets()
+        return jsonify(budget_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
 def edit_budget(budget_id):
-    budget_data = request.get_json()
-    updated_budget = Budget.update(budget_id, budget_data)
-    return jsonify({
-        "message": "Successfully updated budget",
-        "budget_id": updated_budget.id
-    }), 200
+    try:
+        budget_data = request.get_json()
+        updated_budget = BudgetService.update_budget(budget_id, budget_data)
+        return jsonify({
+            "message": "Successfully updated budget",
+            "budget_id": updated_budget.id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 @api.route("/api/budgets/<int:budget_id>", methods=["DELETE"])
 def delete_budget(budget_id):
-    Budget.delete(budget_id)
-    return jsonify({"message": "Budget deleted successfully"}), 200
+    try:
+        BudgetService.delete_budget(budget_id)
+        return jsonify({"message": "Budget deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 # Category Routes
 @api.route("/api/categories", methods=["POST"])

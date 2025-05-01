@@ -1,5 +1,5 @@
 # services/transaction_service.py
-from models import Transaction, Budget, SavingsGoal
+from backend.models import Transaction, Budget, SavingsGoal
 from datetime import datetime
 
 class TransactionService:
