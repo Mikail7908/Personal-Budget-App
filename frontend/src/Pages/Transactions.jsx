@@ -15,29 +15,31 @@ function Transactions({ onGoalChange }) {
   });
   const [editingId, setEditingId] = useState(null);
 
+  const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
   const fetchTransactions = () => {
-    fetch("http://127.0.0.1:5000/api/transactions")
+    fetch(`${API_BASE}/api/transactions`)
       .then((res) => res.json())
       .then(setTransactions)
       .catch((err) => console.error("Error fetching transactions:", err));
   };
 
   const fetchBudgets = () => {
-    fetch("http://127.0.0.1:5000/api/budgets")
+    fetch(`${API_BASE}/api/budgets`)
       .then((res) => res.json())
       .then(setBudgets)
       .catch((err) => console.error("Error fetching budgets:", err));
   };
 
   const fetchCategories = () => {
-    fetch("http://127.0.0.1:5000/api/categories")
+    fetch(`${API_BASE}/api/categories`)
       .then((res) => res.json())
       .then(setCategories)
       .catch((err) => console.error("Error fetching categories:", err));
   };
 
   const fetchSavingsGoals = () => {
-    fetch("http://127.0.0.1:5000/api/savings-goals") 
+    fetch(`${API_BASE}/api/savings-goals`) 
       .then((res) => res.json())
       .then(setSavingsGoals)
       .catch((err) => console.error("Error fetching savings goals:", err));
@@ -76,8 +78,8 @@ function Transactions({ onGoalChange }) {
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `http://127.0.0.1:5000/api/transactions/${editingId}`
-      : "http://127.0.0.1:5000/api/transactions";
+      ? `${API_BASE}/api/transactions/${editingId}`
+      : `${API_BASE}/api/transactions`;
 
     try {
       const res = await fetch(url, {
@@ -88,7 +90,6 @@ function Transactions({ onGoalChange }) {
 
       const response = await res.json();
 
-      
       if (form.type === "savings" && form.savings_id) {
         const updatedGoal = savingsGoals.find(
           (goal) => goal.id === form.savings_id
@@ -97,14 +98,12 @@ function Transactions({ onGoalChange }) {
         if (updatedGoal) {
           updatedGoal.current_amount += parseFloat(form.amount);  
           
-          
-          await fetch(`http://127.0.0.1:5000/api/savings-goals/${updatedGoal.id}`, {
+          await fetch(`${API_BASE}/api/savings-goals/${updatedGoal.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedGoal),
           });
 
-          
           setSavingsGoals((prevGoals) =>
             prevGoals.map((goal) =>
               goal.id === updatedGoal.id ? updatedGoal : goal
@@ -126,7 +125,6 @@ function Transactions({ onGoalChange }) {
       fetchBudgets();
       fetchSavingsGoals();
 
-      
       if (onGoalChange) {
         onGoalChange();
       }
@@ -149,7 +147,7 @@ function Transactions({ onGoalChange }) {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://127.0.0.1:5000/api/transactions/${id}`, {
+    fetch(`${API_BASE}/api/transactions/${id}`, {
       method: "DELETE",
     })
       .then(fetchTransactions)

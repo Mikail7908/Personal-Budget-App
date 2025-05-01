@@ -19,16 +19,18 @@ function Home() {
   const [budgets, setBudgets] = useState([]);
   const [savingsGoals, setSavingsGoals] = useState([]);
 
+  const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/transactions")
+    fetch(`${API_BASE}/api/transactions`)
       .then((res) => res.json())
       .then(setTransactions);
 
-    fetch("http://127.0.0.1:5000/api/budgets")
+    fetch(`${API_BASE}/api/budgets`)
       .then((res) => res.json())
       .then(setBudgets);
 
-    fetch("http://127.0.0.1:5000/api/savings-goals")
+    fetch(`${API_BASE}/api/savings-goals`)
       .then((res) => res.json())
       .then(setSavingsGoals);
   }, []);
@@ -60,18 +62,16 @@ function Home() {
     target: goal.target_amount,
   }));
 
-
   const spendingColors = [
-    "#3b82f6", // blue
-    "#f97316", // orange
-    "#10b981", // green
-    "#8b5cf6", // purple
-    "#f43f5e", // red
-    "#14b8a6", // teal
-    "#eab308", // yellow
+    "#3b82f6",
+    "#f97316",
+    "#10b981",
+    "#8b5cf6",
+    "#f43f5e",
+    "#14b8a6",
+    "#eab308",
   ];
 
-  // Pie Chart Data for Income vs Expenses
   const pieData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpense },
@@ -108,7 +108,6 @@ function Home() {
         </div>
       </div>
 
-  
       <div className="grid-layout">
         {/* Spending by Category Bar Chart */}
         <div className="chart-section spending-by-category">
@@ -119,7 +118,6 @@ function Home() {
                 data={spendingByCategoryData}
                 margin={{ top: 10, right: 10, bottom: 30, left: 30 }}
               >
-                {/* Add XAxis and YAxis */}
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
@@ -128,7 +126,7 @@ function Home() {
                   {spendingByCategoryData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={spendingColors[index % spendingColors.length]} 
+                      fill={spendingColors[index % spendingColors.length]}
                     />
                   ))}
                 </Bar>
@@ -161,8 +159,8 @@ function Home() {
                         outerRadius={80}
                         animationDuration={1500}
                       >
-                        <Cell key="cell-1" fill="#34d399" /> 
-                        <Cell key="cell-2" fill="#f97316" /> 
+                        <Cell key="cell-1" fill="#34d399" />
+                        <Cell key="cell-2" fill="#f97316" />
                       </Pie>
                       <Tooltip />
                     </PieChart>
@@ -192,8 +190,8 @@ function Home() {
                 label
                 animationDuration={1500}
               >
-                <Cell fill="#34d399" /> 
-                <Cell fill="#f97316" /> 
+                <Cell fill="#34d399" />
+                <Cell fill="#f97316" />
               </Pie>
               <Tooltip />
               <Legend />

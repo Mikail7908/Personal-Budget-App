@@ -14,15 +14,17 @@ function Budget() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
   const fetchBudgets = () => {
-    fetch("http://127.0.0.1:5000/api/budgets")
+    fetch(`${API_BASE}/api/budgets`)
       .then((res) => res.json())
       .then(setBudgets)
       .catch(console.error);
   };
 
   const fetchCategories = () => {
-    fetch("http://127.0.0.1:5000/api/categories")
+    fetch(`${API_BASE}/api/categories`)
       .then((res) => res.json())
       .then(setCategories)
       .catch(console.error);
@@ -42,8 +44,8 @@ function Budget() {
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `http://127.0.0.1:5000/api/budgets/${editingId}`
-      : "http://127.0.0.1:5000/api/budgets";
+      ? `${API_BASE}/api/budgets/${editingId}`
+      : `${API_BASE}/api/budgets`;
 
     try {
       const res = await fetch(url, {
@@ -71,7 +73,7 @@ function Budget() {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://127.0.0.1:5000/api/budgets/${id}`, { method: "DELETE" })
+    fetch(`${API_BASE}/api/budgets/${id}`, { method: "DELETE" })
       .then(fetchBudgets)
       .catch(console.error);
   };
@@ -81,10 +83,9 @@ function Budget() {
     return cat ? cat.name : `Category ${id}`;
   };
 
-  // Add a new category
   const handleCategorySubmit = (e) => {
     e.preventDefault();
-    fetch("http://127.0.0.1:5000/api/categories", {
+    fetch(`${API_BASE}/api/categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(categoryForm),
@@ -100,7 +101,10 @@ function Budget() {
   return (
     <div className="page">
       <h2>Monthly Budget</h2>
-      <p>Set and view your budget limits for different categories like food, rent, entertainment, etc.</p>
+      <p>
+        Set and view your budget limits for different categories like food,
+        rent, entertainment, etc.
+      </p>
 
       {/* CATEGORY CREATION FORM */}
       <form onSubmit={handleCategorySubmit} className="budget-form">
