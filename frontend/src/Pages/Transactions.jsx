@@ -86,7 +86,7 @@ function Transactions({ onGoalChange }) {
         body: JSON.stringify(dataToSend),
       });
 
-      const response = await res.json();
+      await res.json();
 
       
       if (form.type === "savings" && form.savings_id) {
@@ -154,11 +154,6 @@ function Transactions({ onGoalChange }) {
     })
       .then(fetchTransactions)
       .catch((err) => console.error("Error deleting transaction:", err));
-  };
-
-  const getCategoryName = (id) => {
-    const cat = categories.find((c) => c.id === id);
-    return cat ? cat.name : "Unknown Category";
   };
 
   const getBudgetName = (budgetId) => {

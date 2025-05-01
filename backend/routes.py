@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
-from backend.models import Transaction, Budget, Category, SavingsGoal
-from datetime import datetime
 from backend.services.transaction_service import TransactionService
 from backend.services.budget_service import BudgetService
 from backend.services.category_service import CategoryService
+from backend.services.savings_goal_service import SavingsGoalService
 
 api = Blueprint("api", __name__)
 
@@ -147,14 +146,7 @@ def delete_category(category_id):
 def create_savings_goal():
     try:
         data = request.get_json()
-        new_goal = SavingsGoal(
-            target_amount=float(data["target_amount"]),
-            current_amount=float(data.get("current_amount", 0)),
-            deadline=datetime.strptime(data["deadline"], "%Y-%m-%d"),
-            description=data["description"],
-            saving_frequency=data["saving_frequency"]
-        )
-        new_goal.save_to_db()
+        new_goal = SavingsGoalService.create_savings_goal(data)
         return jsonify({
             "message": "Successfully created new savings goal",
             "id": new_goal.id
@@ -164,28 +156,29 @@ def create_savings_goal():
 
 @api.route("/api/savings-goals", methods=["GET"])
 def view_all_savings_goals():
-    all_goals = SavingsGoal.fetch_all()
-    goals_list = [{
-        "id": goal.id,
-        "target_amount": goal.target_amount,
-        "current_amount": goal.current_amount,
-        "deadline": goal.deadline.strftime("%Y-%m-%d"),
-        "description": goal.description,
-        "saving_frequency": goal.saving_frequency,
-        "progress": goal.calculate_progress()
-    } for goal in all_goals]
-    return jsonify(goals_list), 200
+    try:
+        goals_list = SavingsGoalService.get_all_savings_goals()
+        return jsonify(goals_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @api.route("/api/savings-goals/<int:goal_id>", methods=["PUT"])
 def edit_savings_goal(goal_id):
-    goal_data = request.get_json()
-    updated_goal = SavingsGoal.update(goal_id, goal_data)
-    return jsonify({
-        "message": "Successfully updated savings goal",
-        "id": updated_goal.id
-    }), 200
+    try:
+        goal_data = request.get_json()
+        updated_goal = SavingsGoalService.update_savings_goal(goal_id, goal_data)
+        return jsonify({
+            "message": "Successfully updated savings goal",
+            "id": updated_goal.id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @api.route("/api/savings-goals/<int:goal_id>", methods=["DELETE"])
 def delete_savings_goal(goal_id):
-    SavingsGoal.delete(goal_id)
-    return jsonify({"message": "Savings goal deleted successfully"}), 200
+    try:
+        SavingsGoalService.delete_savings_goal(goal_id)
+        return jsonify({"message": "Savings goal deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
