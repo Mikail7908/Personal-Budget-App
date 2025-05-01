@@ -11,7 +11,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Set CORS based on the environment
 if os.environ.get("FLASK_ENV") == "production":
-    CORS(app, resources={r"/api/*": {"origins": "https://your-frontend-url.com"}})
+    CORS(app, resources={r"/api/*": {"origins": "https://personal-budget-app-u093.onrender.com"}})
 else:
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
