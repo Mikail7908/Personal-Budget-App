@@ -28,7 +28,6 @@ class BaseModel(db.Model):
 # Transaction with budget-aware sync
 class Transaction(BaseModel):
     __tablename__ = "transactions"
-    __table_args__ = {'extend_existing': True}
 
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
@@ -68,7 +67,6 @@ class Transaction(BaseModel):
 
 class Category(BaseModel):
     __tablename__ = "categories"
-    __table_args__ = {'extend_existing': True}
 
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False) 
@@ -85,7 +83,6 @@ class Category(BaseModel):
 
 class Budget(BaseModel):
     __tablename__ = "budgets"
-    __table_args__ = {'extend_existing': True}
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
     amount = db.Column(db.Float, nullable=False)
@@ -109,7 +106,6 @@ class Budget(BaseModel):
 
 class SavingsGoal(BaseModel):
     __tablename__ = "savings_goals"
-    __table_args__ = {'extend_existing': True}
 
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.00, nullable=False)
