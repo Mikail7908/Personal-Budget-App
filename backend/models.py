@@ -25,7 +25,6 @@ class BaseModel(db.Model):
         db.session.delete(item)
         db.session.commit()
 
-
 # Transaction with budget-aware sync
 class Transaction(BaseModel):
     __tablename__ = "transactions"
@@ -37,25 +36,25 @@ class Transaction(BaseModel):
     savings_goal_id = db.Column(db.Integer, db.ForeignKey("savings_goals.id"), nullable=True)  
     budget = relationship("Budget", back_populates="transactions")
     savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True) 
-
     def validate_amount(self):
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
 
     def save_to_db(self, old_amount=None):
-        # Handle the update of an existing transaction
-        if self.id:  # Update existing transaction
-            old_transaction = Transaction.query.get(self.id)
-            if old_transaction:
-                old_amount = old_transaction.amount  # Get the old amount before updating
-        else:  # For new transactions, old_amount is None
-            old_amount = None
-
-        BaseModel.save_to_db(self)  # Save the new transaction to DB
-
-        # Call BudgetObserver to adjust budget with old amount and new amount
-        BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
-
+        BaseModel.save_to_db(self)
+        BudgetObserver.update_budget_on_transaction_update(
+            self,
+            old_amount=old_amount,
+            new_amount=self.amount
+        )
+        # old_amount = None
+        # if self.id and old_amount is None:
+        #     old_transaction = Transaction.query.get(self.id)
+        #     old_amount = old_transaction.amount if old_transaction else None
+            
+        # BaseModel.save_to_db(self)
+        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
+        
     def delete_from_db(self):
         old_amount = self.amount
         BudgetObserver.update_budget_on_transaction_update(self, old_amount)
@@ -64,6 +63,7 @@ class Transaction(BaseModel):
 
     def __repr__(self):
         return f"<Transaction {self.id}: {self.description} - {self.amount}>"
+
 
 class Category(BaseModel):
     __tablename__ = "categories"
@@ -80,7 +80,6 @@ class Category(BaseModel):
         return category
 
     budgets = relationship("Budget", back_populates="category")
-
 
 class Budget(BaseModel):
     __tablename__ = "budgets"
