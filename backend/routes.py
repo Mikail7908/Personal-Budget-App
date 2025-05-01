@@ -3,6 +3,7 @@ from backend.models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
 from backend.services.transaction_service import TransactionService
 from backend.services.budget_service import BudgetService
+from backend.services.category_service import CategoryService
 
 api = Blueprint("api", __name__)
 
@@ -66,7 +67,7 @@ def view_all_budgets():
         budget_list = BudgetService.get_all_budgets()
         return jsonify(budget_list), 200
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
@@ -79,7 +80,7 @@ def edit_budget(budget_id):
             "budget_id": updated_budget.id
         }), 200
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 
 @api.route("/api/budgets/<int:budget_id>", methods=["DELETE"])
 def delete_budget(budget_id):
@@ -87,18 +88,19 @@ def delete_budget(budget_id):
         BudgetService.delete_budget(budget_id)
         return jsonify({"message": "Budget deleted successfully"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 
 # Category Routes
 @api.route("/api/categories", methods=["POST"])
 def create_category():
     try:
         category_data = request.get_json()
-        new_category = Category(
-            name=category_data["name"],
-            type=category_data["type"]
-        )
-        new_category.save_to_db()
+        # new_category = Category(
+        #     name=category_data["name"],
+        #     type=category_data["type"]
+        # )
+        # new_category.save_to_db()
+        new_category = CategoryService.create_category(category_data)
         return jsonify({
             "message": "Successfully created new category",
             "category_id": new_category.id
@@ -108,27 +110,37 @@ def create_category():
 
 @api.route("/api/categories", methods=["GET"])
 def view_all_categories():
-    all_categories = Category.fetch_all()
-    category_list = [{
-        "id": category.id,
-        "name": category.name,
-        "type": category.type
-    } for category in all_categories]
-    return jsonify(category_list), 200
+    # all_categories = Category.fetch_all()
+    # category_list = [{
+    #     "id": category.id,
+    #     "name": category.name,
+    #     "type": category.type
+    # } for category in all_categories]
+    try:
+        category_list = CategoryService.get_all_categories()
+        return jsonify(category_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @api.route("/api/categories/<int:category_id>", methods=["PUT"])
 def edit_category(category_id):
-    category_data = request.get_json()
-    updated_category = Category.update(category_id, category_data)
-    return jsonify({
-        "message": "Successfully updated category",
-        "category_id": updated_category.id
-    }), 200
+    try:
+        category_data = request.get_json()
+        updated_category = CategoryService.update_category(category_id, category_data)
+        return jsonify({
+            "message": "Successfully updated category",
+            "category_id": updated_category.id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @api.route("/api/categories/<int:category_id>", methods=["DELETE"])
 def delete_category(category_id):
-    Category.delete(category_id)
-    return jsonify({"message": "Category deleted successfully"}), 200
+    try:
+        CategoryService.delete_category(category_id)
+        return jsonify({"message": "Category deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 # Savings Goal Routes
 @api.route("/api/savings-goals", methods=["POST"])
