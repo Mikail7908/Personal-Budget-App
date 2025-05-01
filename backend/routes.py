@@ -1,4 +1,3 @@
-# routes.py
 from flask import Blueprint, request, jsonify
 from backend.models import Transaction, Budget, Category, SavingsGoal
 from datetime import datetime
@@ -71,12 +70,14 @@ def view_all_budgets():
     budget_list = [{
         "id": budget.id,
         "category_id": budget.category_id,
+        "category_name": budget.category.name,  
         "amount": budget.amount,
         "month": budget.month,
         "spent_amount": budget.spent_amount,
         "remaining": budget.calculate_remaining()
     } for budget in all_budgets]
     return jsonify(budget_list), 200
+
 
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
 def edit_budget(budget_id):

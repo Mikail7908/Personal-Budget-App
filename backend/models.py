@@ -31,11 +31,11 @@ class Transaction(BaseModel):
 
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # income or expense
+    type = db.Column(db.String(50), nullable=False)  
     budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
-    
+    savings_goal_id = db.Column(db.Integer, db.ForeignKey("savings_goals.id"), nullable=True)  
     budget = relationship("Budget", back_populates="transactions")
-
+    savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True) 
     def validate_amount(self):
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
@@ -47,20 +47,29 @@ class Transaction(BaseModel):
             old_amount=old_amount,
             new_amount=self.amount
         )
+        # old_amount = None
+        # if self.id and old_amount is None:
+        #     old_transaction = Transaction.query.get(self.id)
+        #     old_amount = old_transaction.amount if old_transaction else None
+            
+        # BaseModel.save_to_db(self)
+        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
         
     def delete_from_db(self):
-        BudgetObserver.update_budget_on_transaction_update(self, old_amount=self.amount, new_amount=None)
+        old_amount = self.amount
+        BudgetObserver.update_budget_on_transaction_update(self, old_amount)
         db.session.delete(self)
         db.session.commit()
 
     def __repr__(self):
         return f"<Transaction {self.id}: {self.description} - {self.amount}>"
 
+
 class Category(BaseModel):
     __tablename__ = "categories"
 
     name = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False)  # e.g., "expense", "income"
+    type = db.Column(db.String(255), nullable=False) 
 
     @staticmethod
     def update(category_id, category_data):

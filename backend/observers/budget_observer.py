@@ -7,12 +7,12 @@ class BudgetObserver:
             budget = Budget.query.get(transaction.budget_id)
             
             if budget:
-                if old_amount is None and new_amount is not None:
-                    budget.spent_amount += new_amount
-                elif old_amount is not None and new_amount is not None:
-                    budget.spent_amount = budget.spent_amount - old_amount + new_amount
-                elif old_amount is not None and new_amount is None:
+                # If there's an old amount (e.g., when updating a transaction), subtract the old value
+                if old_amount is not None:
                     budget.spent_amount -= old_amount
-                    
-                budget.spent_amount = max(budget.spent_amount, 0)
+
+                # Add the new transaction amount
+                budget.spent_amount += transaction.amount
+                budget.spent_amount = max(budget.spent_amount, 0)  # Ensure non-negative spent amount
                 budget.save_to_db()
+
