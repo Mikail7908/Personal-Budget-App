@@ -1,5 +1,6 @@
 from models import Category
 
+
 class CategoryService:
     @staticmethod
     def create_category(data):

@@ -1,6 +1,7 @@
 from models import Budget, Category
 from datetime import datetime
 
+
 class BudgetService:
     @staticmethod
     def create_budget(data):
@@ -53,3 +54,4 @@ class BudgetService:
             Budget.delete(budget_id)
         except Exception as e:
             raise Exception(f"Error deleting budget: {str(e)}")
+        

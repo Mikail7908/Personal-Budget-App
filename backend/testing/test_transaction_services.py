@@ -8,6 +8,7 @@ from main import app, db
 from models import  Transaction, Budget
 from services.transaction_service import TransactionService
 
+
 class TestTransactionService(unittest.TestCase):
     def setUp(self):
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"

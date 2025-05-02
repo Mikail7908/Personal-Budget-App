@@ -9,6 +9,7 @@ from main import app, db
 from models import Budget, Category
 from services.budget_service import BudgetService
 
+
 class TestBudgetService(unittest.TestCase):
     def setUp(self):
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
@@ -89,3 +90,4 @@ class TestBudgetService(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    

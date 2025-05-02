@@ -6,12 +6,16 @@ from services.budget_service import BudgetService
 from services.category_service import CategoryService
 from services.savings_goal_service import SavingsGoalService
 
+
 api = Blueprint("api", __name__)
 
+# This is just a test route to test if the backend is running fine
 @api.route("/api/test", methods=["GET"])
 def test():
     return jsonify({"message": "Test route working!"}), 200
 
+
+# Transaction Routes
 @api.route("/api/transactions", methods=["POST"])
 def create_transaction():
     try:
@@ -49,6 +53,7 @@ def delete_transaction(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
 # Budget Routes
 @api.route("/api/budgets", methods=["POST"])
 def create_budget():
@@ -70,7 +75,6 @@ def view_all_budgets():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
 def edit_budget(budget_id):
     try:
@@ -90,6 +94,7 @@ def delete_budget(budget_id):
         return jsonify({"message": "Budget deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
 
 # Category Routes
 @api.route("/api/categories", methods=["POST"])
@@ -111,12 +116,6 @@ def create_category():
 
 @api.route("/api/categories", methods=["GET"])
 def view_all_categories():
-    # all_categories = Category.fetch_all()
-    # category_list = [{
-    #     "id": category.id,
-    #     "name": category.name,
-    #     "type": category.type
-    # } for category in all_categories]
     try:
         category_list = CategoryService.get_all_categories()
         return jsonify(category_list), 200
@@ -142,6 +141,7 @@ def delete_category(category_id):
         return jsonify({"message": "Category deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
 
 # Savings Goal Routes
 @api.route("/api/savings-goals", methods=["POST"])

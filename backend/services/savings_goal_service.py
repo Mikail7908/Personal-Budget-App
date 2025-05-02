@@ -1,6 +1,7 @@
 from models import SavingsGoal
 from datetime import datetime
 
+
 class SavingsGoalService:
     @staticmethod
     def create_savings_goal(data):
