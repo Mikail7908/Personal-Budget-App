@@ -3,6 +3,7 @@ import sys
 import unittest
 from datetime import datetime
 
+# Adjusting path so imports work correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 from test_config import create_test_app
@@ -11,32 +12,39 @@ from models import Budget, Category
 from services.budget_service import BudgetService
 
 class TestBudgetService(unittest.TestCase):
-    def setUp(self):
-        self.app = create_test_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+    @classmethod
+    def setUpClass(cls):
+        """Sets up the app and database before any tests are run."""
+        cls.app = create_test_app()  # Use the helper function to create the test app
+        cls.app_context = cls.app.app_context()  # Get the app context
+        cls.app_context.push()  # Push the app context
 
-        with self.app.app_context():
-            db.create_all()
+        with cls.app.app_context():
+            db.create_all()  # Create all the tables for testing
+
+            # Create a test category and budget to be used in tests
             test_category = Category(name="Test Category", type="expense")
             db.session.add(test_category)
             db.session.commit()
-            self.test_category_id = test_category.id
+            cls.test_category_id = test_category.id
+
             test_budget = Budget(
-                category_id=self.test_category_id,
+                category_id=cls.test_category_id,
                 amount=1000.0,
                 month="May 2025",
                 spent_amount=200.0
             )
             db.session.add(test_budget)
             db.session.commit()
-            self.test_budget_id = test_budget.id
+            cls.test_budget_id = test_budget.id
 
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-        self.app_context.pop()
+    @classmethod
+    def tearDownClass(cls):
+        """Cleans up after all tests have run."""
+        with cls.app.app_context():
+            db.session.remove()  # Clean up session
+            db.drop_all()  # Drop all tables
+        cls.app_context.pop()  # Pop the app context
 
     def test_create_budget(self):
         test_new_budget_data = {

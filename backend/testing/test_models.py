@@ -11,20 +11,24 @@ from models import Transaction, Budget, SavingsGoal, Category
 from extensions import db  # Import the db object from extensions
 
 class TestModels(unittest.TestCase):
-    def setUp(self):
-        # Use the helper function from test_config to set up the test app
-        self.app = create_test_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        
-        with self.app.app_context():
-            db.create_all()  # Create all the tables
+    @classmethod
+    def setUpClass(cls):
+        """Sets up the app and database before any tests are run."""
+        cls.app = create_test_app()  # Use the helper function to create the test app
+        cls.app_context = cls.app.app_context()  # Get the app context
+        cls.app_context.push()  # Push the app context
 
-    def tearDown(self):
-        with self.app.app_context():
+        with cls.app.app_context():
+            db.create_all()  # Create all the tables for testing
+
+    @classmethod
+    def tearDownClass(cls):
+        """Cleans up after all tests have run."""
+        with cls.app.app_context():
             db.session.remove()  # Clean up session
-            db.drop_all()  # Drop all tables after test
-    
+            db.drop_all()  # Drop all tables
+        cls.app_context.pop()  # Pop the app context
+
     def test_transaction_creation(self):
         with self.app.app_context():
             test_transaction = Transaction(
@@ -33,9 +37,9 @@ class TestModels(unittest.TestCase):
                 type="expense",
                 date=datetime.now(),
             )
-            test_transaction.save_to_db()
-            transaction = Transaction.query.first()
-            self.assertIsNotNone(transaction)
+            test_transaction.save_to_db()  # Save transaction to DB
+            transaction = Transaction.query.first()  # Fetch the first transaction
+            self.assertIsNotNone(transaction)  # Ensure the transaction exists in DB
             self.assertEqual(transaction.amount, 100.0)
             self.assertEqual(transaction.description, "Test")
             self.assertEqual(transaction.type, "expense")

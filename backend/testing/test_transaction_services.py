@@ -12,14 +12,16 @@ from services.transaction_service import TransactionService
 from extensions import db  # Import db object from extensions
 
 class TestTransactionService(unittest.TestCase):
-    def setUp(self):
-        # Use the helper function from test_config to set up the test app
-        self.app = create_test_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        with self.app.app_context():
-            db.create_all()
-
+    @classmethod
+    def setUpClass(cls):
+        """Sets up the app and database before any tests are run."""
+        cls.app = create_test_app()  # Get the app from the helper function
+        cls.app_context = cls.app.app_context()  # Get app context
+        cls.app_context.push()  # Push the app context
+        
+        with cls.app.app_context():
+            db.create_all()  # Create all tables for testing
+            
             # Create a test budget to associate with transactions
             test_budget = Budget(
                 category_id=1,
@@ -29,14 +31,16 @@ class TestTransactionService(unittest.TestCase):
             )
             db.session.add(test_budget)
             db.session.commit()
-            self.test_budget_id = test_budget.id
-            self.client = self.app.test_client()
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-        self.app_context.pop()
+            cls.test_budget_id = test_budget.id  # Store test budget ID
+            cls.client = cls.app.test_client()  # Initialize test client
+    
+    @classmethod
+    def tearDownClass(cls):
+        """Cleans up after all tests have run."""
+        with cls.app.app_context():
+            db.session.remove()  # Remove the session
+            db.drop_all()  # Drop all tables
+        cls.app_context.pop()  # Pop the app context
 
     def test_create_transaction(self):
         test_data = {
