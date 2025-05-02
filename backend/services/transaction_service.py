@@ -13,7 +13,7 @@ class TransactionService:
                 date=datetime.strptime(data["date"], "%Y-%m-%d"),
                 type=data["type"],
                 budget_id=data.get("budget_id"),
-                savings_goal_id=data.get("savings_goal_id")
+                savings_goal_id=data.get("savings_goal_id"),
             )
             transaction.validate_amount()
             transaction.save_to_db()
@@ -33,15 +33,18 @@ class TransactionService:
     def get_all_transactions():
         try:
             all_transactions = Transaction.fetch_all()
-            transaction_list = [{
-                "id": transaction.id,
-                "amount": transaction.amount,
-                "description": transaction.description,
-                "date": transaction.date.strftime("%Y-%m-%d"),
-                "type": transaction.type,
-                "budget_id": transaction.budget_id,
-                "savings_goal_id": transaction.savings_goal_id
-            } for transaction in all_transactions]
+            transaction_list = [
+                {
+                    "id": transaction.id,
+                    "amount": transaction.amount,
+                    "description": transaction.description,
+                    "date": transaction.date.strftime("%Y-%m-%d"),
+                    "type": transaction.type,
+                    "budget_id": transaction.budget_id,
+                    "savings_goal_id": transaction.savings_goal_id,
+                }
+                for transaction in all_transactions
+            ]
             return transaction_list
         except Exception as e:
             raise Exception(f"Error fetching transactions: {str(e)}")
@@ -65,7 +68,7 @@ class TransactionService:
             transaction.validate_amount()
 
             transaction.save_to_db(old_amount=old_amount)
-            
+
             if old_savings_goal_id != transaction.savings_goal_id:
                 if old_savings_goal_id:
                     old_savings_goal = SavingsGoal.query.get(old_savings_goal_id)
@@ -74,7 +77,9 @@ class TransactionService:
                         old_savings_goal.save_to_db()
 
                 if transaction.savings_goal_id:
-                    new_savings_goal = SavingsGoal.query.get(transaction.savings_goal_id)
+                    new_savings_goal = SavingsGoal.query.get(
+                        transaction.savings_goal_id
+                    )
                     if new_savings_goal:
                         new_savings_goal.current_amount += transaction.amount
                         new_savings_goal.save_to_db()
