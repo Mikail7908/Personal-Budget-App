@@ -1,51 +1,61 @@
 classDiagram
+    %% Domain Models
     class BaseModel {
         <<abstract>>
-        +Integer id
-        +DateTime created_at
-        +DateTime updated_at
-        +DateTime date
+        -Integer id
+        -DateTime created_at
+        -DateTime updated_at
+        -DateTime date
         +save_to_db()
-        +fetch_all() 
+        +fetch_all()
         +delete(id)
     }
     
     class Transaction {
-        +Float amount
-        +String description
-        +String type
-        +Integer budget_id
-        +Integer savings_goal_id
+        -Float amount
+        -String description
+        -String type
+        -Integer budget_id
+        -Integer savings_goal_id
+        -Budget budget
+        -SavingsGoal savings_goal
         +validate_amount()
         +save_to_db(old_amount)
         +delete_from_db()
+        +__repr__()
     }
     
     class Category {
-        +String name
-        +String type
+        -String name
+        -String type
+        -List~Budget~ budgets
         +update(category_id, category_data)
     }
     
     class Budget {
-        +Integer category_id
-        +Float amount
-        +String month
-        +Float spent_amount
+        -Integer category_id
+        -Float amount
+        -String month
+        -Float spent_amount
+        -Category category
+        -List~Transaction~ transactions
         +calculate_remaining()
         +update(budget_id, budget_data)
     }
     
     class SavingsGoal {
-        +Float target_amount
-        +Float current_amount
-        +DateTime deadline
-        +String description
-        +String saving_frequency
+        -Float target_amount
+        -Float current_amount
+        -DateTime deadline
+        -String description
+        -String saving_frequency
+        -List~Transaction~ transactions
         +calculate_progress()
         +update(savings_goal_id, savings_goal_data)
+        +__repr__()
     }
     
+    %% Services Layer
     class BudgetObserver {
         <<service>>
         +update_budget_on_transaction_update(transaction, old_amount, new_amount)
@@ -83,11 +93,48 @@ classDiagram
         +delete_savings_goal(goal_id)
     }
     
+    %% API Routes
+    class APIRoutes {
+        +test()
+        +create_transaction()
+        +view_all_transactions()
+        +edit_transaction(id)
+        +delete_transaction(id)
+        +create_budget()
+        +view_all_budgets()
+        +edit_budget(id)
+        +delete_budget(id)
+        +create_category()
+        +view_all_categories()
+        +edit_category(id)
+        +delete_category(id)
+        +create_savings_goal()
+        +view_all_savings_goals()
+        +edit_savings_goal(id)
+        +delete_savings_goal(id)
+    }
+    
+    %% Relationships
     BaseModel <|-- Transaction
     BaseModel <|-- Category
     BaseModel <|-- Budget
     BaseModel <|-- SavingsGoal
     
-    Transaction "many" --> "1" Budget : belongs to
-    Transaction "many" --> "1" SavingsGoal : belongs to
-    Budget "many" --> "1" Category : belongs to
+    Transaction "0..*" --* "0..1" Budget : belongs to
+    Transaction "0..*" --* "0..1" SavingsGoal : belongs to
+    Budget "0..*" --* "1" Category : belongs to
+    
+    BudgetObserver ..> Budget : updates
+    BudgetObserver ..> Transaction : monitors
+    
+    TransactionService ..> Transaction : manages
+    BudgetService ..> Budget : manages
+    CategoryService ..> Category : manages
+    SavingsGoalService ..> SavingsGoal : manages
+    
+    Transaction ..> BudgetObserver : notifies
+    
+    APIRoutes ..> TransactionService : uses
+    APIRoutes ..> BudgetService : uses
+    APIRoutes ..> CategoryService : uses
+    APIRoutes ..> SavingsGoalService : uses
