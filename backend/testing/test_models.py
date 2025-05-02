@@ -1,5 +1,6 @@
 import sys
 import os
+
 import unittest
 from datetime import datetime
 
@@ -39,6 +40,5 @@ class TestModels(unittest.TestCase):
             self.assertEqual(transaction.amount, 100.0)
             self.assertEqual(transaction.description, "Test")
             self.assertEqual(transaction.type, "expense")
-
 if __name__ == "__main__":
     unittest.main()

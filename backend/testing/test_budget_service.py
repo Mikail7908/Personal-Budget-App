@@ -9,8 +9,10 @@ from test_config import create_test_app
 from extensions import db
 from models import Budget, Category
 from services.budget_service import BudgetService
+from testing.base_test_case import BaseTestCase
 
-class TestBudgetService(unittest.TestCase):
+
+class TestBudgetService(BaseTestCase):
     def setUp(self):
         self.app = create_test_app()
         self.app_context = self.app.app_context()
@@ -38,12 +40,13 @@ class TestBudgetService(unittest.TestCase):
             db.drop_all()
         self.app_context.pop()
 
+
     def test_create_budget(self):
         test_new_budget_data = {
             "category_id": self.test_category_id,
             "amount": "500.0",
             "month": "June 2025",
-            "spent_amount": "0.0"
+            "spent_amount": "0.0",
         }
 
         with self.app.app_context():

@@ -3,6 +3,7 @@ import os
 import unittest
 from datetime import datetime
 
+
 # Adjust path so imports work correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
@@ -11,7 +12,7 @@ from models import Transaction, Budget
 from services.transaction_service import TransactionService
 from extensions import db  # Import db object from extensions
 
-class TestTransactionService(unittest.TestCase):
+class TestTransactionService(BaseTestCase):
     def setUp(self):
         # Use the helper function from test_config to set up the test app
         self.app = create_test_app()
@@ -44,7 +45,7 @@ class TestTransactionService(unittest.TestCase):
             "description": "Test transaction creation",
             "date": "2025-04-10",
             "type": "expense",
-            "budget_id": self.test_budget_id
+            "budget_id": self.test_budget_id,
         }
         initial_budget = Budget.query.get(self.test_budget_id)
         self.assertEqual(initial_budget.spent_amount, 0.0)
@@ -62,7 +63,7 @@ class TestTransactionService(unittest.TestCase):
             "description": "Test transaction",
             "date": "2025-04-10",
             "type": "expense",
-            "budget_id": self.test_budget_id
+            "budget_id": self.test_budget_id,
         }
 
         initial_budget = Budget.query.get(self.test_budget_id)
@@ -77,9 +78,11 @@ class TestTransactionService(unittest.TestCase):
             "description": "Updated test transaction",
             "date": "2025-04-10",
             "type": "expense",
-            "budget_id": self.test_budget_id
+            "budget_id": self.test_budget_id,
         }
-        updated_transaction = TransactionService.update_transaction(test_transaction.id, update_test_data)
+        updated_transaction = TransactionService.update_transaction(
+            test_transaction.id, update_test_data
+        )
         updated_budget = Budget.query.get(self.test_budget_id)
         self.assertEqual(updated_budget.spent_amount, 300.0)
 
@@ -89,7 +92,7 @@ class TestTransactionService(unittest.TestCase):
             "description": "Testing delete transaction",
             "date": "2025-04-10",
             "type": "expense",
-            "budget_id": self.test_budget_id
+            "budget_id": self.test_budget_id,
         }
 
         initial_budget = Budget.query.get(self.test_budget_id)

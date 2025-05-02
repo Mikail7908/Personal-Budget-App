@@ -1,16 +1,19 @@
 import os
 import sys
 import unittest
-from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
+
 from test_config import create_test_app
 from extensions import db
+
 from models import Category
 from services.category_service import CategoryService
+from testing.base_test_case import BaseTestCase
 
-class TestCategoryService(unittest.TestCase):
+
+class TestCategoryService(BaseTestCase):
     def setUp(self):
         self.app = create_test_app()
         self.app_context = self.app.app_context()
