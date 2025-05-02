@@ -3,41 +3,24 @@ import os
 import unittest
 from datetime import datetime
 
-
-# Adjust path so imports work correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-from test_config import create_test_app
+from main import app, db
 from models import Transaction, Budget
 from services.transaction_service import TransactionService
-from extensions import db  # Import db object from extensions
+from testing.base_test_case import BaseTestCase
+
 
 class TestTransactionService(BaseTestCase):
     def setUp(self):
-        # Use the helper function from test_config to set up the test app
-        self.app = create_test_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        with self.app.app_context():
-            db.create_all()
-
-            # Create a test budget to associate with transactions
-            test_budget = Budget(
-                category_id=1,
-                amount=1000.0,
-                month="April 2025",
-                spent_amount=0.0
-            )
-            db.session.add(test_budget)
-            db.session.commit()
-            self.test_budget_id = test_budget.id
-            self.client = self.app.test_client()
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-        self.app_context.pop()
+        super().setUp()
+        test_budget = Budget(
+            category_id=1, amount=1000.0, month="April 2025", spent_amount=0.0
+        )
+        db.session.add(test_budget)
+        db.session.commit()
+        self.test_budget_id = test_budget.id
+        self.client = app.test_client()
 
     def test_create_transaction(self):
         test_data = {
@@ -72,7 +55,6 @@ class TestTransactionService(BaseTestCase):
         test_transaction = TransactionService.create_transaction(test_data)
         budget_after_creation = Budget.query.get(self.test_budget_id)
         self.assertEqual(budget_after_creation.spent_amount, 200.0)
-
         update_test_data = {
             "amount": "300.0",
             "description": "Updated test transaction",
@@ -106,6 +88,7 @@ class TestTransactionService(BaseTestCase):
         updated_budget = Budget.query.get(self.test_budget_id)
         self.assertEqual(updated_budget.spent_amount, 0.0)
         self.assertIsNone(Transaction.query.get(test_transaction.id))
+
 
 if __name__ == "__main__":
     unittest.main()

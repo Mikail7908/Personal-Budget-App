@@ -1,44 +1,78 @@
 import sys
 import os
 
-import unittest
-from datetime import datetime
-
-# Adjusting path so imports work correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-from test_config import create_test_app
+import unittest
+from datetime import datetime, timedelta
+from main import app, db
 from models import Transaction, Budget, SavingsGoal, Category
-from extensions import db  # Import the db object from extensions
+from testing.base_test_case import BaseTestCase
 
-class TestModels(unittest.TestCase):
-    def setUp(self):
-        # Use the helper function from test_config to set up the test app
-        self.app = create_test_app()
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        
-        with self.app.app_context():
-            db.create_all()  # Create all the tables
 
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()  # Clean up session
-            db.drop_all()  # Drop all tables after test
-    
+class TestModels(BaseTestCase):
     def test_transaction_creation(self):
-        with self.app.app_context():
-            test_transaction = Transaction(
-                amount=100.0,
-                description="Test",
-                type="expense",
-                date=datetime.now(),
-            )
-            test_transaction.save_to_db()
-            transaction = Transaction.query.first()
-            self.assertIsNotNone(transaction)
-            self.assertEqual(transaction.amount, 100.0)
-            self.assertEqual(transaction.description, "Test")
-            self.assertEqual(transaction.type, "expense")
+        test_transaction = Transaction(
+            amount=100.0,
+            description="Test",
+            type="expense",
+            date=datetime.now(),
+        )
+        test_transaction.save_to_db()
+        transaction = Transaction.query.first()
+        self.assertIsNotNone(transaction)
+        self.assertEqual(transaction.amount, 100.0)
+        self.assertEqual(transaction.description, "Test")
+        self.assertEqual(transaction.type, "expense")
+
+    def test_budget_creation(self):
+        test_category = Category(
+            name="Test Category", type="expense", date=datetime.now()
+        )
+        test_category.save_to_db()
+        test_budget = Budget(
+            category_id=test_category.id,
+            amount=500.0,
+            month="April",
+            spent_amount=0.0,
+            date=datetime.now(),
+        )
+        test_budget.save_to_db()
+        budget = Budget.query.first()
+        self.assertIsNotNone(budget)
+        self.assertEqual(budget.amount, 500.0)
+        self.assertEqual(budget.month, "April")
+        self.assertEqual(budget.spent_amount, 0.0)
+        self.assertEqual(budget.category_id, test_category.id)
+
+    def test_category_creation(self):
+        test_category = Category(name="Food", type="expense", date=datetime.now())
+        test_category.save_to_db()
+
+        category = Category.query.first()
+        self.assertIsNotNone(category)
+        self.assertEqual(category.name, "Food")
+        self.assertEqual(category.type, "expense")
+
+    def test_savings_goal_creation(self):
+        deadline = datetime.now() + timedelta(days=30)
+        test_goal = SavingsGoal(
+            target_amount=1000.0,
+            current_amount=250.0,
+            deadline=deadline,
+            description="Vacation Fund",
+            saving_frequency="monthly",
+            date=datetime.now(),
+        )
+        test_goal.save_to_db()
+
+        goal = SavingsGoal.query.first()
+        self.assertIsNotNone(goal)
+        self.assertEqual(goal.target_amount, 1000.0)
+        self.assertEqual(goal.current_amount, 250.0)
+        self.assertEqual(goal.description, "Vacation Fund")
+        self.assertEqual(goal.saving_frequency, "monthly")
+
+
 if __name__ == "__main__":
     unittest.main()
