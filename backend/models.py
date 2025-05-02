@@ -32,11 +32,14 @@ class Transaction(BaseModel):
 
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(50), nullable=False)  
+    type = db.Column(db.String(50), nullable=False)
     budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
-    savings_goal_id = db.Column(db.Integer, db.ForeignKey("savings_goals.id"), nullable=True)  
+    savings_goal_id = db.Column(
+        db.Integer, db.ForeignKey("savings_goals.id"), nullable=True
+    )
     budget = relationship("Budget", back_populates="transactions")
-    savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True) 
+    savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True)
+
     def validate_amount(self):
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
@@ -44,11 +47,9 @@ class Transaction(BaseModel):
     def save_to_db(self, old_amount=None):
         BaseModel.save_to_db(self)
         BudgetObserver.update_budget_on_transaction_update(
-            self,
-            old_amount=old_amount,
-            new_amount=self.amount
+            self, old_amount=old_amount, new_amount=self.amount
         )
-        
+
     def delete_from_db(self):
         old_amount = self.amount
         BudgetObserver.update_budget_on_transaction_update(self, old_amount)
@@ -63,7 +64,7 @@ class Category(BaseModel):
     __tablename__ = "categories"
 
     name = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False) 
+    type = db.Column(db.String(255), nullable=False)
 
     @staticmethod
     def update(category_id, category_data):
@@ -74,7 +75,7 @@ class Category(BaseModel):
         return category
 
     budgets = relationship("Budget", back_populates="category")
-    
+
 
 class Budget(BaseModel):
     __tablename__ = "budgets"
@@ -109,14 +110,20 @@ class SavingsGoal(BaseModel):
     saving_frequency = db.Column(db.String(50), nullable=False)
 
     def calculate_progress(self):
-        return (self.current_amount / self.target_amount) * 100 if self.target_amount else 0
+        return (
+            (self.current_amount / self.target_amount) * 100
+            if self.target_amount
+            else 0
+        )
 
     @staticmethod
     def update(savings_goal_id, savings_goal_data):
         savings_goal = SavingsGoal.query.get_or_404(savings_goal_id)
         savings_goal.target_amount = float(savings_goal_data["target_amount"])
         savings_goal.current_amount = float(savings_goal_data["current_amount"])
-        savings_goal.deadline = datetime.strptime(savings_goal_data["deadline"], "%Y-%m-%d")
+        savings_goal.deadline = datetime.strptime(
+            savings_goal_data["deadline"], "%Y-%m-%d"
+        )
         savings_goal.description = savings_goal_data["description"]
         savings_goal.saving_frequency = savings_goal_data["saving_frequency"]
         db.session.commit()
@@ -124,4 +131,3 @@ class SavingsGoal(BaseModel):
 
     def __repr__(self):
         return f"<SavingsGoal {self.id}: {self.description} - Progress: {self.calculate_progress():.1f}%>"
-    

@@ -11,26 +11,29 @@ class SavingsGoalService:
                 current_amount=float(data.get("current_amount", 0)),
                 deadline=datetime.strptime(data["deadline"], "%Y-%m-%d"),
                 description=data["description"],
-                saving_frequency=data["saving_frequency"]
+                saving_frequency=data["saving_frequency"],
             )
             new_goal.save_to_db()
             return new_goal
         except Exception as e:
             raise Exception(f"Error creating savings goal: {str(e)}")
-        
+
     @staticmethod
     def get_all_savings_goals():
         try:
             all_goals = SavingsGoal.fetch_all()
-            goals_list = [{
-                "id": goal.id,
-                "target_amount": goal.target_amount,
-                "current_amount": goal.current_amount,
-                "deadline": goal.deadline.strftime("%Y-%m-%d"),
-                "description": goal.description,
-                "saving_frequency": goal.saving_frequency,
-                "progress": goal.calculate_progress()
-            } for goal in all_goals]
+            goals_list = [
+                {
+                    "id": goal.id,
+                    "target_amount": goal.target_amount,
+                    "current_amount": goal.current_amount,
+                    "deadline": goal.deadline.strftime("%Y-%m-%d"),
+                    "description": goal.description,
+                    "saving_frequency": goal.saving_frequency,
+                    "progress": goal.calculate_progress(),
+                }
+                for goal in all_goals
+            ]
             return goals_list
         except Exception as e:
             raise Exception(f"Error fetching savings goals: {str(e)}")

@@ -9,6 +9,7 @@ from services.savings_goal_service import SavingsGoalService
 
 api = Blueprint("api", __name__)
 
+
 # This is just a test route to test if the backend is running fine
 @api.route("/api/test", methods=["GET"])
 def test():
@@ -25,6 +26,7 @@ def create_transaction():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
 @api.route("/api/transactions", methods=["GET"])
 def view_all_transactions():
     try:
@@ -33,17 +35,26 @@ def view_all_transactions():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @api.route("/api/transactions/<int:id>", methods=["PUT"])
 def edit_transaction(id):
     try:
         transaction_data = request.get_json()
-        updated_transaction = TransactionService.update_transaction(id, transaction_data)
-        return jsonify({
-            "message": "Successfully updated transaction",
-            "id": updated_transaction.id
-        }), 200
+        updated_transaction = TransactionService.update_transaction(
+            id, transaction_data
+        )
+        return (
+            jsonify(
+                {
+                    "message": "Successfully updated transaction",
+                    "id": updated_transaction.id,
+                }
+            ),
+            200,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/transactions/<int:id>", methods=["DELETE"])
 def delete_transaction(id):
@@ -60,12 +71,18 @@ def create_budget():
     try:
         budget_data = request.get_json()
         new_budget = BudgetService.create_budget(budget_data)
-        return jsonify({
-            "message": "Successfully created new budget",
-            "budget_id": new_budget.id
-        }), 201
+        return (
+            jsonify(
+                {
+                    "message": "Successfully created new budget",
+                    "budget_id": new_budget.id,
+                }
+            ),
+            201,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/budgets", methods=["GET"])
 def view_all_budgets():
@@ -75,17 +92,24 @@ def view_all_budgets():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @api.route("/api/budgets/<int:budget_id>", methods=["PUT"])
 def edit_budget(budget_id):
     try:
         budget_data = request.get_json()
         updated_budget = BudgetService.update_budget(budget_id, budget_data)
-        return jsonify({
-            "message": "Successfully updated budget",
-            "budget_id": updated_budget.id
-        }), 200
+        return (
+            jsonify(
+                {
+                    "message": "Successfully updated budget",
+                    "budget_id": updated_budget.id,
+                }
+            ),
+            200,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/budgets/<int:budget_id>", methods=["DELETE"])
 def delete_budget(budget_id):
@@ -94,7 +118,7 @@ def delete_budget(budget_id):
         return jsonify({"message": "Budget deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 
 # Category Routes
 @api.route("/api/categories", methods=["POST"])
@@ -107,12 +131,18 @@ def create_category():
         # )
         # new_category.save_to_db()
         new_category = CategoryService.create_category(category_data)
-        return jsonify({
-            "message": "Successfully created new category",
-            "category_id": new_category.id
-        }), 201
+        return (
+            jsonify(
+                {
+                    "message": "Successfully created new category",
+                    "category_id": new_category.id,
+                }
+            ),
+            201,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/categories", methods=["GET"])
 def view_all_categories():
@@ -122,17 +152,24 @@ def view_all_categories():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @api.route("/api/categories/<int:category_id>", methods=["PUT"])
 def edit_category(category_id):
     try:
         category_data = request.get_json()
         updated_category = CategoryService.update_category(category_id, category_data)
-        return jsonify({
-            "message": "Successfully updated category",
-            "category_id": updated_category.id
-        }), 200
+        return (
+            jsonify(
+                {
+                    "message": "Successfully updated category",
+                    "category_id": updated_category.id,
+                }
+            ),
+            200,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/categories/<int:category_id>", methods=["DELETE"])
 def delete_category(category_id):
@@ -141,7 +178,7 @@ def delete_category(category_id):
         return jsonify({"message": "Category deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 
 # Savings Goal Routes
 @api.route("/api/savings-goals", methods=["POST"])
@@ -149,12 +186,15 @@ def create_savings_goal():
     try:
         data = request.get_json()
         new_goal = SavingsGoalService.create_savings_goal(data)
-        return jsonify({
-            "message": "Successfully created new savings goal",
-            "id": new_goal.id
-        }), 201
+        return (
+            jsonify(
+                {"message": "Successfully created new savings goal", "id": new_goal.id}
+            ),
+            201,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/savings-goals", methods=["GET"])
 def view_all_savings_goals():
@@ -164,17 +204,21 @@ def view_all_savings_goals():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @api.route("/api/savings-goals/<int:goal_id>", methods=["PUT"])
 def edit_savings_goal(goal_id):
     try:
         goal_data = request.get_json()
         updated_goal = SavingsGoalService.update_savings_goal(goal_id, goal_data)
-        return jsonify({
-            "message": "Successfully updated savings goal",
-            "id": updated_goal.id
-        }), 200
+        return (
+            jsonify(
+                {"message": "Successfully updated savings goal", "id": updated_goal.id}
+            ),
+            200,
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @api.route("/api/savings-goals/<int:goal_id>", methods=["DELETE"])
 def delete_savings_goal(goal_id):
@@ -183,4 +227,3 @@ def delete_savings_goal(goal_id):
         return jsonify({"message": "Savings goal deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
