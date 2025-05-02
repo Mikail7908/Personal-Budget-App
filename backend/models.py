@@ -2,6 +2,8 @@ from datetime import datetime
 from extensions import db
 from sqlalchemy.orm import relationship
 from observers.budget_observer import BudgetObserver
+from observers.savings_goal_observer import SavingsGoalObserver
+
 
 class BaseModel(db.Model):
     __abstract__ = True
@@ -25,39 +27,40 @@ class BaseModel(db.Model):
         db.session.delete(item)
         db.session.commit()
 
-# Transaction with budget-aware sync
+
 class Transaction(BaseModel):
     __tablename__ = "transactions"
 
     amount = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(50), nullable=False)  
+    type = db.Column(db.String(50), nullable=False)
     budget_id = db.Column(db.Integer, db.ForeignKey("budgets.id"), nullable=True)
-    savings_goal_id = db.Column(db.Integer, db.ForeignKey("savings_goals.id"), nullable=True)  
+    savings_goal_id = db.Column(
+        db.Integer, db.ForeignKey("savings_goals.id"), nullable=True
+    )
     budget = relationship("Budget", back_populates="transactions")
-    savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True) 
+    savings_goal = relationship("SavingsGoal", backref="transactions", lazy=True)
+
     def validate_amount(self):
         if self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
 
-    def save_to_db(self, old_amount=None):
+    def save_to_db(self, old_amount=None, old_savings_goal_id=None):
         BaseModel.save_to_db(self)
         BudgetObserver.update_budget_on_transaction_update(
-            self,
-            old_amount=old_amount,
-            new_amount=self.amount
+            self, old_amount=old_amount, new_amount=self.amount
         )
-        # old_amount = None
-        # if self.id and old_amount is None:
-        #     old_transaction = Transaction.query.get(self.id)
-        #     old_amount = old_transaction.amount if old_transaction else None
-            
-        # BaseModel.save_to_db(self)
-        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
-        
+        SavingsGoalObserver.update_goal_on_transaction_update(
+        self, old_amount=old_amount, old_savings_goal_id=old_savings_goal_id
+    )
+
     def delete_from_db(self):
         old_amount = self.amount
+        old_savings_goal_id = self.savings_goal_id
         BudgetObserver.update_budget_on_transaction_update(self, old_amount)
+        SavingsGoalObserver.update_goal_on_transaction_update(
+        self, old_amount=old_amount, old_savings_goal_id=old_savings_goal_id
+    )
         db.session.delete(self)
         db.session.commit()
 
@@ -69,7 +72,7 @@ class Category(BaseModel):
     __tablename__ = "categories"
 
     name = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False) 
+    type = db.Column(db.String(255), nullable=False)
 
     @staticmethod
     def update(category_id, category_data):
@@ -80,6 +83,7 @@ class Category(BaseModel):
         return category
 
     budgets = relationship("Budget", back_populates="category")
+
 
 class Budget(BaseModel):
     __tablename__ = "budgets"
@@ -114,14 +118,20 @@ class SavingsGoal(BaseModel):
     saving_frequency = db.Column(db.String(50), nullable=False)
 
     def calculate_progress(self):
-        return (self.current_amount / self.target_amount) * 100 if self.target_amount else 0
+        return (
+            (self.current_amount / self.target_amount) * 100
+            if self.target_amount
+            else 0
+        )
 
     @staticmethod
     def update(savings_goal_id, savings_goal_data):
         savings_goal = SavingsGoal.query.get_or_404(savings_goal_id)
         savings_goal.target_amount = float(savings_goal_data["target_amount"])
         savings_goal.current_amount = float(savings_goal_data["current_amount"])
-        savings_goal.deadline = datetime.strptime(savings_goal_data["deadline"], "%Y-%m-%d")
+        savings_goal.deadline = datetime.strptime(
+            savings_goal_data["deadline"], "%Y-%m-%d"
+        )
         savings_goal.description = savings_goal_data["description"]
         savings_goal.saving_frequency = savings_goal_data["saving_frequency"]
         db.session.commit()
