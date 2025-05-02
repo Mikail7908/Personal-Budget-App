@@ -67,22 +67,10 @@ class TransactionService:
 
             transaction.validate_amount()
 
-            transaction.save_to_db(old_amount=old_amount)
-
-            if old_savings_goal_id != transaction.savings_goal_id:
-                if old_savings_goal_id:
-                    old_savings_goal = SavingsGoal.query.get(old_savings_goal_id)
-                    if old_savings_goal:
-                        old_savings_goal.current_amount -= old_amount
-                        old_savings_goal.save_to_db()
-
-                if transaction.savings_goal_id:
-                    new_savings_goal = SavingsGoal.query.get(
-                        transaction.savings_goal_id
-                    )
-                    if new_savings_goal:
-                        new_savings_goal.current_amount += transaction.amount
-                        new_savings_goal.save_to_db()
+            transaction.save_to_db(
+                old_amount=old_amount,
+                old_savings_goal_id=old_savings_goal_id
+            )
 
             return transaction
         except Exception as e:
