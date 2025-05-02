@@ -1,65 +1,93 @@
 classDiagram
     class BaseModel {
-        +int id
-        +datetime created_at
-        +datetime updated_at
-        +save()
-        +delete()
-        +get()
-    }
-
-    class FinancialTransaction {
         <<abstract>>
-        +float amount
-        +str description
-        +datetime date
-        +validate_amount()*
-        +process_transaction()*
+        +Integer id
+        +DateTime created_at
+        +DateTime updated_at
+        +DateTime date
+        +save_to_db()
+        +fetch_all() 
+        +delete(id)
     }
-
-    class Income {
-        +str source
-        +str frequency
+    
+    class Transaction {
+        +Float amount
+        +String description
+        +String type
+        +Integer budget_id
+        +Integer savings_goal_id
         +validate_amount()
-        +process_transaction()
+        +save_to_db(old_amount)
+        +delete_from_db()
     }
-
-    class Expense {
-        +str category
-        +str payment_method
-        +validate_amount()
-        +process_transaction()
-    }
-
+    
     class Category {
-        +str name
-        +str type
-        +create_category()
-        +get_all_categories()
+        +String name
+        +String type
+        +update(category_id, category_data)
     }
-
+    
     class Budget {
-        +Category category
-        +float amount
-        +str month
-        +float spent_amount
+        +Integer category_id
+        +Float amount
+        +String month
+        +Float spent_amount
         +calculate_remaining()
-        +update_spent_amount()
+        +update(budget_id, budget_data)
     }
-
+    
     class SavingsGoal {
-        +float target_amount
-        +float current_amount
-        +date deadline
-        +str description
-        +str saving_frequency
+        +Float target_amount
+        +Float current_amount
+        +DateTime deadline
+        +String description
+        +String saving_frequency
         +calculate_progress()
-        +project_completion_date()
+        +update(savings_goal_id, savings_goal_data)
     }
-
-    BaseModel <|-- FinancialTransaction
+    
+    class BudgetObserver {
+        <<service>>
+        +update_budget_on_transaction_update(transaction, old_amount, new_amount)
+    }
+    
+    class TransactionService {
+        <<service>>
+        +create_transaction(data)
+        +get_all_transactions()
+        +update_transaction(transaction_id, data)
+        +delete_transaction(transaction_id)
+    }
+    
+    class BudgetService {
+        <<service>>
+        +create_budget(data)
+        +get_all_budgets()
+        +update_budget(budget_id, data)
+        +delete_budget(budget_id)
+    }
+    
+    class CategoryService {
+        <<service>>
+        +create_category(data)
+        +get_all_categories()
+        +update_category(category_id, data)
+        +delete_category(category_id)
+    }
+    
+    class SavingsGoalService {
+        <<service>>
+        +create_savings_goal(data)
+        +get_all_savings_goals()
+        +update_savings_goal(goal_id, data)
+        +delete_savings_goal(goal_id)
+    }
+    
+    BaseModel <|-- Transaction
     BaseModel <|-- Category
     BaseModel <|-- Budget
     BaseModel <|-- SavingsGoal
-    FinancialTransaction <|-- Income
-    FinancialTransaction <|-- Expense
+    
+    Transaction "many" --> "1" Budget : belongs to
+    Transaction "many" --> "1" SavingsGoal : belongs to
+    Budget "many" --> "1" Category : belongs to
