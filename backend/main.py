@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///budget_database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Load frontend URL from environment or default to local dev

@@ -3,6 +3,7 @@
 Deployment:
 - there should be a link at the side: personal-budget-app-alpha.vercel.app
 - that should take you to the deployed product
+- the instance might take a while to spin up so after doing your 1st request wait a min of 1 minute
 
 Running the App locally:
 - if the deployment does not work it might be because of timing out due to the free plan the vender products offer
