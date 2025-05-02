@@ -7,15 +7,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 from main import app, db
 from models import  Transaction, Budget
 from services.transaction_service import TransactionService
+from testing.base_test_case import BaseTestCase
 
 
-class TestTransactionService(unittest.TestCase):
+class TestTransactionService(BaseTestCase):
     def setUp(self):
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-        app.config["TESTING"] = True
-        self.app_context = app.app_context()
-        self.app_context.push()
-        db.create_all()
+        super().setUp()
         test_budget = Budget(
             category_id=1,
             amount=1000.0,
@@ -26,11 +23,6 @@ class TestTransactionService(unittest.TestCase):
         db.session.commit()
         self.test_budget_id = test_budget.id
         self.client = app.test_client()
-    
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
         
     def test_create_transaction(self):
         test_data = {

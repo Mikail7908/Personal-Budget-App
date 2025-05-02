@@ -7,16 +7,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 from main import app, db
 from models import Transaction, Budget, Category
 from observers.budget_observer import BudgetObserver
+from testing.base_test_case import BaseTestCase
 
 
-class TestBudgetObserver(unittest.TestCase):
+class TestBudgetObserver(BaseTestCase):
     def setUp(self):
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-        app.config["TESTING"] = True
-        self.app_context = app.app_context()
-        self.app_context.push()
-        db.create_all()
-        
+        super().setUp()
         test_category = Category(name="Test Category", type="expense")
         db.session.add(test_category)
         db.session.commit()
@@ -31,11 +27,6 @@ class TestBudgetObserver(unittest.TestCase):
         db.session.add(test_budget)
         db.session.commit()
         self.test_budget_id = test_budget.id
-    
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
     
     def test_update_budget_on_transaction_creation(self):
         # This creates a transaction without saving it to the database then calls Budget Observer
