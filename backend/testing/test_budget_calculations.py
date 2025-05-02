@@ -6,16 +6,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 from main import app, db
 from models import Budget, Category, Transaction
+from base_test_case import BaseTestCase
 
 
-class TestBudgetCalculations(unittest.TestCase):
+class TestBudgetCalculations(BaseTestCase):
     def setUp(self):
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-        app.config["TESTING"] = True
-        self.app_context = app.app_context()
-        self.app_context.push()
-        db.create_all()
-        
+        super().setUp()
         test_category = Category(name="Food", type="expense")
         db.session.add(test_category)
         db.session.commit()
@@ -30,11 +26,6 @@ class TestBudgetCalculations(unittest.TestCase):
         db.session.add(test_budget)
         db.session.commit()
         self.budget_id = test_budget.id
-    
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
     
     def test_calculate_remaining(self):
         budget = Budget.query.get(self.budget_id)
