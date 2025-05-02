@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timedelta
 from main import app, db
 from models import Transaction, Budget, SavingsGoal, Category
-from base_test_case import BaseTestCase
+from testing.base_test_case import BaseTestCase
 
 
 class TestModels(BaseTestCase):

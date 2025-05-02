@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 from main import app, db
 from models import Budget, Category
 from services.budget_service import BudgetService
-from base_test_case import BaseTestCase
+from testing.base_test_case import BaseTestCase
 
 
 class TestBudgetService(BaseTestCase):

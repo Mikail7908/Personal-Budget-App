@@ -2,13 +2,13 @@ import os
 import sys
 import unittest
 from datetime import datetime, timedelta
-from base_test_case import BaseTestCase
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 from main import app, db
 from models import SavingsGoal
 from services.savings_goal_service import SavingsGoalService
+from testing.base_test_case import BaseTestCase
 
 
 class TestSavingsGoalService(BaseTestCase):

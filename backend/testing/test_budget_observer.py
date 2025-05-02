@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 from main import app, db
 from models import Transaction, Budget, Category
 from observers.budget_observer import BudgetObserver
-from base_test_case import BaseTestCase
+from testing.base_test_case import BaseTestCase
 
 
 class TestBudgetObserver(BaseTestCase):
