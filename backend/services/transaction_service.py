@@ -1,6 +1,6 @@
-# services/transaction_service.py
 from models import Transaction, Budget, SavingsGoal
 from datetime import datetime
+
 
 class TransactionService:
     @staticmethod
@@ -13,16 +13,16 @@ class TransactionService:
                 date=datetime.strptime(data["date"], "%Y-%m-%d"),
                 type=data["type"],
                 budget_id=data.get("budget_id"),
-                savings_goal_id=data.get("savings_goal_id")  # Associate with savings goal if provided
+                savings_goal_id=data.get("savings_goal_id")
             )
             transaction.validate_amount()
             transaction.save_to_db()
 
-            # Update the savings goal if a savings_goal_id is provided
+            # This updates the savings goal if a valid savings_goal_id is provided
             if transaction.savings_goal_id:
                 savings_goal = SavingsGoal.query.get(transaction.savings_goal_id)
                 if savings_goal:
-                    savings_goal.current_amount += transaction.amount  # Add amount to savings goal
+                    savings_goal.current_amount += transaction.amount
                     savings_goal.save_to_db()
 
             return transaction
@@ -51,12 +51,10 @@ class TransactionService:
         try:
             transaction = Transaction.query.get_or_404(transaction_id)
 
-            # Store the old values for the transaction
+            # This stores the old values for the transaction
             old_amount = transaction.amount
             old_savings_goal_id = transaction.savings_goal_id
-            old_budget_id = transaction.budget_id
 
-            # Update the transaction data
             transaction.amount = float(data["amount"])
             transaction.description = data["description"]
             transaction.date = datetime.strptime(data["date"], "%Y-%m-%d")
@@ -84,7 +82,6 @@ class TransactionService:
             return transaction
         except Exception as e:
             raise Exception(f"Error updating transaction: {str(e)}")
-
 
     @staticmethod
     def delete_transaction(transaction_id):

@@ -3,6 +3,7 @@ from extensions import db
 from sqlalchemy.orm import relationship
 from observers.budget_observer import BudgetObserver
 
+
 class BaseModel(db.Model):
     __abstract__ = True
 
@@ -25,7 +26,7 @@ class BaseModel(db.Model):
         db.session.delete(item)
         db.session.commit()
 
-# Transaction with budget-aware sync
+
 class Transaction(BaseModel):
     __tablename__ = "transactions"
 
@@ -47,13 +48,6 @@ class Transaction(BaseModel):
             old_amount=old_amount,
             new_amount=self.amount
         )
-        # old_amount = None
-        # if self.id and old_amount is None:
-        #     old_transaction = Transaction.query.get(self.id)
-        #     old_amount = old_transaction.amount if old_transaction else None
-            
-        # BaseModel.save_to_db(self)
-        # BudgetObserver.update_budget_on_transaction_update(self, old_amount=old_amount, new_amount=self.amount)
         
     def delete_from_db(self):
         old_amount = self.amount
@@ -80,6 +74,7 @@ class Category(BaseModel):
         return category
 
     budgets = relationship("Budget", back_populates="category")
+    
 
 class Budget(BaseModel):
     __tablename__ = "budgets"
@@ -129,3 +124,4 @@ class SavingsGoal(BaseModel):
 
     def __repr__(self):
         return f"<SavingsGoal {self.id}: {self.description} - Progress: {self.calculate_progress():.1f}%>"
+    

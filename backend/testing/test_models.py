@@ -7,8 +7,6 @@ from datetime import datetime
 from main import app, db
 from models import Transaction, Budget, SavingsGoal, Category
 
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-print("SYSTEM PATH", sys.path)
 
 class TestModels(unittest.TestCase):
     def setUp(self):
@@ -40,3 +38,4 @@ class TestModels(unittest.TestCase):
             
 if __name__ == "__main__":
     unittest.main()
+    
